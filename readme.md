@@ -4,10 +4,6 @@ Library that make document manipulation a lot easier
 ## Author 
 Yousef Neji
 
-## Version
-1.0.0
-
-
 ## Tutorial
 Starting by importing our library
 
