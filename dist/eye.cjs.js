@@ -607,6 +607,39 @@ jcall.jcallify = function (form, options) {
 // globally exposed
 window.jcall = jcall;
 
+/**
+ * @typedef {Object} AttrMap
+ * @property {HTMLDivElement} parent - append newly created element to a parent
+ * @property {Array<String>|String} class - class or array of classes to set 
+ * @property {String} id - set element ID
+ * @property {Object} data - dataset values to set
+ * @property {String} text - set element text
+ * @property {String} html - set element html
+ * @property {{ request: String, data: Object, callback: Function}} refresh - attached a refreshable context
+ * 
+ */
+
+
+/**
+ * @typedef {Object} EyeElement
+ * @property {(tag: String, attrs: AttrMap) => EyeElement} eye - The main function to create or select elements.
+ * @property {(set_to?: string) => EyeElement} show - Show the element, optional customize the display value, inline-bloc, bloc.... .
+ * @property {() => EyeElement} hide - Hide the element.
+ * @property {(index: number) => EyeElement} child - Function to get a child element by index.
+ * @property {(key: String, value: *) => EyeElement} refer - Set or get a hidden WeakMap attributes
+ * @property {(key: String, subfind: number) => EyeElement} unrefer - Remove/unset a WeakMap attributes, optionally `subfind` it if array is set!
+ * @property {(event: String, callback: Function) => EyeElement} on - Attach an event listener to `event`
+ * @property {(parent: HTMLElement) => EyeElement} appendTo - Append this element to an other
+ * @property {(key: String, value: String) => EyeElement|String} attr - Set or get a value of certain attribute
+ * @property {(key: String, value: String) => EyeElement|string} css - Modify or get element style
+ * @property {(key: string, value: string) => DOMStringMap|string} data - Set or get a dataset value of the attribute
+ * @property {Function} [eventName] - Functions for various events (e.g., click, focus, etc.).
+ * @property {boolean} isEyeInstance - Flag to check if the element is an Eye instance.
+ * @property {(action: String, value: String, opt?: String)=> boolean} class - perform class manipulation
+ * @property {*} refresh - under consrtuction
+ */
+
+
 const events = [
   // Mouse Events
   "click",
@@ -845,14 +878,14 @@ function flat(word) {
 /**
  * Creates or select nodes using css selectors, offering a pack of useful functions to use around your code!
  * @param {String} tag 
- * @param {*} attrs 
- * @param {*} css 
+ * @param {AttrMap} attrs 
+ * @param {*} css CSS styles to be applied to the element.
  * @returns 
  */
 function eye(tag, attrs, css) {
   if (css instanceof Array) children = css;
   /**
-   * @type {HTMLDivElement}
+   * @type {EyeElement}
    */
   let elm,
     selectFunc = "querySelector",
@@ -883,7 +916,88 @@ function eye(tag, attrs, css) {
   elm.isEyeInstance = true;
   // adding a very special function
   elm.eye = eye;
-  elm.setAttrs = function () { };
+
+  // adding the element itself
+  // usuage:
+  // item.set("id=menu-item","contentEditable=true","data-index=15",...);
+  elm.set = function (value, ...args) {
+    args.push(value);
+    args.forEach((arg) => {
+      if (arg.indexOf("=") != -1) {
+        const [key, val] = arg.split("=");
+        if (key.indexOf('data-') === 0) {
+          this.dataset[flat(key.replace('data-', ''))] = val;
+        } else {
+          this.setAttribute(key, val);
+        }
+      } else if (arg.indexOf(":") != -1) {
+        const [key, val] = arg.split(":");
+        this.style[flat(key)] = val;
+      } else this.setAttribute(arg, "");
+    });
+
+    return this;
+  };
+
+  elm.class = function (action, value, opt) {
+    if (!value) {
+      // single param
+      // maybe using some intelligent markup? (%-)
+      // possible markup
+      // "-classname" remove classname
+      // "%classname" toggle classname
+      // "?classname" contains? classname
+      // "oldclass/newclass" replace oldclass by newclass
+      // number(1,2,3..) returns the class at the specified index
+      // "classname" add classname
+      if (typeof action === "number") {
+        value = action;
+        action = "get";
+      } else if (action[0] == "-") {
+        value = action.substring(1, action.length);
+        action = "remove";
+      } else if (action[0] == "%") {
+        value = action.substring(1, action.length);
+        action = "toggle";
+      } else if (action[0] == "?") {
+        value = action.substring(1, action.length);
+        action = "contains";
+      } else if (action.indexOf('/') != -1) {
+        [value, opt] = action.split('/');
+        action = "replace";
+      } else {
+        value = action;
+        action = "add";
+      }
+    }
+
+    let result = false;
+    switch (action) {
+      case "add":
+        this.classList.add(value.substring(1, value.length));
+        result = true;
+        break;
+      case "remove":
+        this.classList.remove(value.substring(1, value.length));
+        result = true;
+        break;
+      case "toggle":
+        this.classList.toggle(value.substring(1, value.length), true);
+        result = true;
+        break;
+      case "replace":
+        this.classList.replace(value.substring(1, value.length), opt);
+        result = true;
+        break;
+      case "contains":
+        result = this.classList.contains(value.substring(1, value.length));
+        break;
+      case "get":
+        result = this.classList.item(value);
+    }
+
+    return result;
+  };
 
   elm.show = function (set_to) {
     this.style.display = set_to || "";
@@ -895,13 +1009,8 @@ function eye(tag, attrs, css) {
     return this;
   };
 
-  elm.child = function (...args) {
-    let it = this;
-    for (let i = 0; i < args.length; i++) {
-      it = it.children[args[i]];
-      if (!it) break;
-    }
-    return eye(it);
+  elm.child = function (index) {
+    return this.children[index] ? eye(this.children[index]) : null;
   };
 
   elm.refer = function (key, value) {
@@ -934,6 +1043,8 @@ function eye(tag, attrs, css) {
           }
         });
     }
+
+    return this;
   };
 
   // re-assinging events handling system
@@ -949,20 +1060,31 @@ function eye(tag, attrs, css) {
       return this;
     };
   });
+
   elm.on = function (evs, listener) {
-    evs = evs instanceof Array ? evs : [evs];
+    evs = evs.split(' ');
     for (let j = 0; j < evs.length; j++) elm.addEventListener(evs[j], listener);
     return this;
   };
 
-  elm.appendTo = function (e) {
-    if (e) e.append(this);
+  elm.appendTo = function (parent) {
+    if (parent) parent.append(this);
+    return this;
   };
 
   elm.attr = function (key, value) {
     if (key) {
       if (value) this.setAttribute(key, value);
       else return this.getAttribute(key);
+    }
+    return this;
+  };
+
+  elm.css = function (key, value) {
+    // usuage is wide customizable
+    if (key) {
+      if (value) elm.style[flat(key)] = value;
+      return this.style[flat(key)];
     }
     return this;
   };
@@ -975,9 +1097,21 @@ function eye(tag, attrs, css) {
     return this.dataset;
   };
 
+  elm.text = function (value) {
+    if (value) this.textContent = value;
+    else return this.textContent;
+    return this
+  };
+
+  elm.html = function (value) {
+    if (value) this.innerHTML = value;
+    else return this.innerHTML;
+    return this
+  };
+
   // setting attributes & css
   let parentElm = null;
-  let refresh = null;
+  // let refresh = null;
   if (attrs)
     for (const key in attrs) {
       const value = attrs[key];
@@ -990,7 +1124,7 @@ function eye(tag, attrs, css) {
       else if (key == "html") elm.innerHTML = value;
       else if (key == "data") for (const k in value) elm.dataset[k] = value[k];
       else if (key == "parent") parentElm = value;
-      else if (key == "refresh") refresh = value;
+      // else if (key == "refresh") refresh = value;
       else if (key in elm) elm[key] = value;
       else elm.setAttribute(key, elm);
     }
@@ -1000,19 +1134,20 @@ function eye(tag, attrs, css) {
       else elm.style[flat(key)] = css[key];
 
 
-  elm.refresh = function () {
-    if (refresh) {
-      const { request, data, callback } = refresh;
-      if (typeof data === "function") data = data();
-      jcall(request)
-        .launch(data)
-        .then(res => {
-          callback(undefined, res);
-        }).catch(e => {
-          callback(e);
-        });
-    }
-  };
+  // under construction
+  // elm.refresh = function () {
+  //   if (refresh) {
+  //     const { request, data, callback } = refresh;
+  //     if (typeof data === "function") data = data();
+  //     jcall(request)
+  //       .launch(data)
+  //       .then(res => {
+  //         callback(undefined, res);
+  //       }).catch(e => {
+  //         callback(e);
+  //       })
+  //   }
+  // }
 
   if (parentElm) parentElm.append(elm);
   return elm;
