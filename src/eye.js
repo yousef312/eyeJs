@@ -430,8 +430,10 @@ function eye(tag, attrs, css) {
 
   elm.attr = function (key, value) {
     if (key) {
-      if (value) this.setAttribute(key, value);
-      else return this.getAttribute(key);
+      if (value){
+        if(value === false) this.removeAttribute(key)
+        this.setAttribute(key, value);
+      } else return this.getAttribute(key);
     }
     return this;
   };
