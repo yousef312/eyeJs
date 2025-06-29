@@ -5,13 +5,13 @@
 /**
  * @typedef {Object} AttrMap
  * @property {HTMLDivElement} parent - append newly created element to a parent
- * @property {Array<String>|String} class - class or array of classes to set 
+ * @property {Array<String>|String} class - class or array of classes to set
  * @property {String} id - set element ID
  * @property {Object} data - dataset values to set
  * @property {String} text - set element text
  * @property {String} html - set element html
  * @property {{ request: String, data: Object, callback: Function}} refresh - attached a refreshable context
- * 
+ *
  */
 
 /**
@@ -34,7 +34,6 @@
  * @property {(action: String, value: String, opt?: String)=> boolean} class - perform class manipulation
  * @property {*} refresh - under consrtuction
  */
-
 
 const events = [
   // Mouse Events
@@ -273,10 +272,10 @@ function flat(word) {
 }
 /**
  * Creates or select nodes using css selectors, offering a pack of useful functions to use around your code!
- * @param {String} tag 
- * @param {AttrMap} attrs 
+ * @param {String} tag
+ * @param {AttrMap} attrs
  * @param {*} css CSS styles to be applied to the element.
- * @returns 
+ * @returns
  */
 function eye(tag, attrs, css) {
   if (css instanceof Array) children = css;
@@ -321,8 +320,8 @@ function eye(tag, attrs, css) {
     args.forEach((arg) => {
       if (arg.indexOf("=") != -1) {
         const [key, val] = arg.split("=");
-        if (key.indexOf('data-') === 0) {
-          this.dataset[flat(key.replace('data-', ''))] = val;
+        if (key.indexOf("data-") === 0) {
+          this.dataset[flat(key.replace("data-", ""))] = val;
         } else {
           this.setAttribute(key, val);
         }
@@ -335,60 +334,26 @@ function eye(tag, attrs, css) {
     return this;
   };
 
-  elm.class = function (action, value, opt) {
-    if (!value) {
-      // single param
-      // maybe using some intelligent markup? (%-)
-      // possible markup
-      // "-classname" remove classname
-      // "%classname" toggle classname
-      // "?classname" contains? classname
-      // "oldclass/newclass" replace oldclass by newclass
-      // number(1,2,3..) returns the class at the specified index
-      // "classname" add classname
-      if (typeof action === "number") {
-        value = action;
-        action = "get";
-      } else if (action[0] == "-") {
-        value = action.substring(1, action.length);
-        action = "remove";
+  elm.class = function (actions) {
+    let vals = null;
+    if (typeof actions === "number") return elm.classList.item(actions);
+    
+    actions.split(" ").forEach((action) => {
+      if (action[0] == "-") {
+        elm.classList.remove(action.substring(1, action.length));
       } else if (action[0] == "%") {
-        value = action.substring(1, action.length);
-        action = "toggle";
+        elm.classList.toggle(action.substring(1, action.length));
       } else if (action[0] == "?") {
-        value = action.substring(1, action.length);
-        action = "contains";
-      } else if (action.indexOf('/') != -1) {
-        [value, opt] = action.split('/');
-        action = "replace";
+        vals = elm.classList.contains(action.substring(1, action.length));
+      } else if (action.indexOf("/") != -1) {
+        [v1, v2] = action.split("/");
+        elm.classList.replace(v1, v2);
       } else {
-        value = action;
-        action = "add";
+        elm.classList.add(action.substring(1, action.length));
       }
-    }
+    });
 
-    let result = this;
-    switch (action) {
-      case "add":
-        this.classList.add(value.substring(1, value.length));
-        break;
-      case "remove":
-        this.classList.remove(value.substring(1, value.length));
-        break;
-      case "toggle":
-        this.classList.toggle(value.substring(1, value.length), true);
-        break;
-      case "replace":
-        this.classList.replace(value.substring(1, value.length), opt);
-        break;
-      case "contains":
-        result = this.classList.contains(value.substring(1, value.length));
-        break;
-      case "get":
-        result = this.classList.item(value);
-    }
-
-    return result;
+    return vals !== null ? vals : this;
   };
 
   elm.show = function (set_to) {
@@ -454,7 +419,7 @@ function eye(tag, attrs, css) {
   });
 
   elm.on = function (evs, listener) {
-    evs = evs.split(' ');
+    evs = evs.split(" ");
     for (let j = 0; j < evs.length; j++) elm.addEventListener(evs[j], listener);
     return this;
   };
@@ -492,13 +457,13 @@ function eye(tag, attrs, css) {
   elm.text = function (value) {
     if (value) this.textContent = value;
     else return this.textContent;
-    return this
+    return this;
   };
 
   elm.html = function (value) {
     if (value) this.innerHTML = value;
     else return this.innerHTML;
-    return this
+    return this;
   };
 
   // setting attributes & css
@@ -524,7 +489,6 @@ function eye(tag, attrs, css) {
     for (const key in css)
       if (key.indexOf("-") != -1) elm.style[key] = css[key];
       else elm.style[flat(key)] = css[key];
-
 
   // under construction
   // elm.refresh = function () {
