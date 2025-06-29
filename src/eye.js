@@ -1,4 +1,4 @@
-import jcall from "jcall";
+// import jcall from "jcall";
 
 /**
  * @typedef {Object} AttrMap
@@ -11,7 +11,6 @@ import jcall from "jcall";
  * @property {{ request: String, data: Object, callback: Function}} refresh - attached a refreshable context
  * 
  */
-
 
 /**
  * @typedef {Object} EyeElement
@@ -26,6 +25,8 @@ import jcall from "jcall";
  * @property {(key: String, value: String) => EyeElement|String} attr - Set or get a value of certain attribute
  * @property {(key: String, value: String) => EyeElement|string} css - Modify or get element style
  * @property {(key: string, value: string) => DOMStringMap|string} data - Set or get a dataset value of the attribute
+ * @property {(value: String) => EyeElement|string} text - Set or get elements text content
+ * @property {(value: String) => EyeElement|string} html - Set or get elements html content
  * @property {Function} [eventName] - Functions for various events (e.g., click, focus, etc.).
  * @property {boolean} isEyeInstance - Flag to check if the element is an Eye instance.
  * @property {(action: String, value: String, opt?: String)=> boolean} class - perform class manipulation
@@ -365,23 +366,19 @@ function eye(tag, attrs, css) {
       }
     }
 
-    let result = false;
+    let result = this;
     switch (action) {
       case "add":
         this.classList.add(value.substring(1, value.length));
-        result = true;
         break;
       case "remove":
         this.classList.remove(value.substring(1, value.length));
-        result = true;
         break;
       case "toggle":
         this.classList.toggle(value.substring(1, value.length), true);
-        result = true;
         break;
       case "replace":
         this.classList.replace(value.substring(1, value.length), opt);
-        result = true;
         break;
       case "contains":
         result = this.classList.contains(value.substring(1, value.length));
@@ -478,7 +475,7 @@ function eye(tag, attrs, css) {
     // usuage is wide customizable
     if (key) {
       if (value) elm.style[flat(key)] = value;
-      return this.style[flat(key)];
+      else return this.style[flat(key)];
     }
     return this;
   }
