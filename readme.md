@@ -33,7 +33,7 @@ Creating elements
 let baron = eye("div",{ 
         text: "leave",
         parent: bar,
-        class: "btn", // also accepts array for multiple class setting at once
+        class: "btn button_dark", // also accepts array for multiple class setting at once or string concatenation of them with spaces between
         data: { // setting dataset values
             index: 12,
             function: "exit"
