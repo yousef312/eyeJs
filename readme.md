@@ -1,11 +1,10 @@
 # Eye.js
-Library that make document manipulation a lot easier
+Fasten your production and unleash the power of `eye`, manipulate DOM elements with ease while keeping your code organized and well readable.
 
-## Author 
-Yousef Neji
+yeap that's me! [@yousef_neji](https://github.com/yousef312)
 
-## Tutorial
-Starting by importing our library
+## How to?
+Import first
 
 ```JavaScript
 // commonjs
