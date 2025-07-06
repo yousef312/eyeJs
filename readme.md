@@ -3,6 +3,11 @@ Fasten your production and unleash the power of `eye`, manipulate DOM elements w
 
 yeap that's me! [@yousef_neji](https://github.com/yousef312)
 
+## CHANGELOG
+
+Check changelog for more informations
+[check](/changelog.md)
+
 ## How to?
 Import first
 
