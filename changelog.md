@@ -24,6 +24,7 @@
  - `.on` function now support targeted callbacks for event delegation.
  - `.data` function no more use dataset, rather it uses RAM.
  - `.attr` support setting to dataset using data-...
+ - main function `eye` now support multi selection with [optional] "!" at the end of the selector to perform first occurence only.
 
 ## [2.1.1] - 2025-07-01
 

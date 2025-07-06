@@ -23,14 +23,12 @@ Selecting an element
 ```JavaScript
 // div id="bar"
 let bar = eye("div#bar");
-// span class="list-item"
+// all spans with class="list-item"
 let listItem = eye("span.list-item");
-
 // all elements with class ".fools"
-let fools = eye(".fools",{ all: true });
-fools.forEach(littleFool=>{
-    littleFool.style.backgroundColor = "purple";
-})
+let fools = eye(".fools");
+// using ! only return the first occurence
+let firstButton = eye(".btns!");
 ```
 
 Creating elements
@@ -41,7 +39,7 @@ let baron = eye("div",{
         class: "btn button_dark", // also accepts array for multiple class setting at once or string concatenation of them with spaces between
         data: { // setting dataset values
             index: 12,
-            function: "exit"
+            manMap: "off"
         }
     },{ 
         backgroundColor: "red", 
@@ -57,12 +55,12 @@ baron
     .show(customStyle); // display: inline-block or custom style
 
 baron
-    .refer("name","yousef neji"), // more powerfull than dataset, using WeakMaps!
-    .unrefer("name"); // deleting a key
+    .data("name","yousef neji"), // more powerfull than dataset, using WeakMaps!
+    .data("name"); // deleting a key
 
 baron.attr("contentEditable","true"); // manipulating atributes
 baron.attr("style",false); // `false` will remove the attribute `style`
-baron.data("index"); // setting or getting dataset values
+baron.attr("data-index"); // setting or getting dataset values
 
 baron.on("click",cb); // events handling
 baron.click(cb); // triggering or handling events

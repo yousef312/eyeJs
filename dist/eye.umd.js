@@ -418,11 +418,12 @@
         this.raw = document.createElement(selector);
       } else {
         // selecting
-        this.raw = document.querySelectorAll(selector);
+        let s = selector.slice(-1) === "!";
+        this.raw = document.querySelectorAll(s ? selector.slice(0,-1) : selector);
         this.length = this.raw.length;
 
         if (this.length == 0) return null; // we stop everything here
-        if (this.length == 1) this.raw = this.raw.item(0);
+        if (this.length == 1 || s) this.raw = this.raw.item(0);
       }
 
       /**
