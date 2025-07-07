@@ -728,7 +728,7 @@
         let out = "";
         attr = flat(attr);
         (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
-          if (!value) return out = elm.style[attr];
+          if (value === undefined) return out = elm.style[attr];
           elm.style[attr] = value;
         });
         return out ? out : this;

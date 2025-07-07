@@ -1,16 +1,15 @@
 # Changelog
 
-## [3.0.2] - 2025-07-04
+## [3.1.0] - 2025-07-07
 
 ### Added
 
  - function `val` added for supporting inputs manipulation
+ - function `child` added for child selection
 
-## [3.0.1] - 2025-07-04
+### Fixed
 
-### Added
-
- - added function `child` from previous version
+ - function `css` now accept empty string value to remove style!
 
 ## [3.0.1] - 2025-07-04
 
