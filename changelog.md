@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.2] - 2025-07-04
+
+### Added
+
+ - function `val` added for supporting inputs manipulation
+
+## [3.0.1] - 2025-07-04
+
+### Added
+
+ - added function `child` from previous version
 
 ## [3.0.1] - 2025-07-04
 

@@ -419,7 +419,7 @@
       } else {
         // selecting
         let s = selector.slice(-1) === "!";
-        this.raw = document.querySelectorAll(s ? selector.slice(0,-1) : selector);
+        this.raw = document.querySelectorAll(s ? selector.slice(0, -1) : selector);
         this.length = this.raw.length;
 
         if (this.length == 0) return null; // we stop everything here
@@ -875,7 +875,7 @@
         let clone = this.raw.cloneNode(true);
         if (parent instanceof HTMLElement || parent instanceof EyeElement) parent.append(clone);
         return clone;
-      } 
+      }
     },
     /**
      * Compute DOMRect or style declaration of current element
@@ -909,6 +909,28 @@
           else document.exitPointerLock();
         }
       });
+      return this;
+    },
+    /**
+     * Select a child of this element
+     * @method EyeElement#child
+     * @param {number} index 
+     * @returns {EyeElement|null}
+     */
+    child: function (index) {
+      let it = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).children[index];
+      if (it) return eye(it);
+      return null;
+    },
+    /**
+     * Set/get the value of the current element
+     * @method EyeElement#val
+     * @param {*} value 
+     * @returns 
+     */
+    val: function (value) {
+      if (value) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(a => a.value = value);
+      else return (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).value;
       return this;
     }
   };
