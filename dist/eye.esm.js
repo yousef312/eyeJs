@@ -923,7 +923,7 @@ EyeElement.prototype = {
    * @returns 
    */
   val: function (value) {
-    if (value) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(a => a.value = value);
+    if (value) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx,a]) => a.value = value);
     else return (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).value;
     return this;
   }
