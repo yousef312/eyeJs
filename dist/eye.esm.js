@@ -622,54 +622,67 @@ EyeElement.prototype = {
     return this;
   },
   /**
-   * Append one or more nodes to the current element
+   * Append one or more elements to the current element
    * @method EyeElement#append
-   * @param {Node|Array<Node>} elm
+   * @param {HTMLElement|Array<Node|EyeElement>} elm
    * @param {string} [pos] [optional]
    * @returns {EyeElement}
    */
   append: function (elm, pos) {
-    elm = Array.isArray(elm) ? elm : [elm];
+    let nodes = [];
+    (Array.isArray(elm) ? elm : [elm]).forEach(item => {
+      if (item instanceof EyeElement) nodes.push(item.raw);
+      else if (item instanceof HTMLElement) nodes.push(item);
+    });
     if (this.raw instanceof NodeList) {
       console.warn(`[EyeJS] beware while using .append with multi selected elements`);
       this.raw.forEach((itm, idx) => {
-        if (!elm[idx]) return;
-        itm.append(elm[idx]);
+        if (!nodes[idx]) return;
+        itm.append(nodes[idx]);
       });
       return this;
     }
-    if (!pos) this.raw.append(...elm);
+    if (!pos) this.raw.append(...nodes);
     else
       switch (pos) {
         case "next":
         case "after":
-          this.raw.after(...elm);
+          this.raw.after(...nodes);
           break;
         case "previous":
         case "before":
-          this.raw.before(...elm);
+          this.raw.before(...nodes);
           break;
       }
     return this;
   },
   /**
-   * Replace current node with the new node, or multiple nodes with multiple selected elements
+   * Replace current element with the new element, or multiple elements with multiple selected elements
    * @method EyeElement#replaceWith
-   * @param {...Node} nodes
+   * @param {...HTMLElement|EyeElement} elms
    * @param {string} [pos] [optional]
    * @returns {EyeElement}
    */
-  replaceWith: function (...nodes) {
-    (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
-      if (!nodes[idx]) return;
-      elm.replaceWith(nodes[idx]);
+  replaceWith: function (...elms) {
+    let nodes = [];
+    (Array.isArray(elms) ? elms : [elms]).forEach(item => {
+      if (item instanceof EyeElement) nodes.push(item.raw);
+      else if (item instanceof HTMLElement) nodes.push(item);
     });
+    if (this.raw instanceof NodeList) {
+      [...this.raw.entries()].forEach(([idx, elm]) => {
+        if (!nodes[idx]) return;
+        elm.replaceWith(nodes[idx]);
+      });
+    } else {
+      this.raw.replaceWith(...nodes);
+    }
     return this;
   },
   /**
    * Get current element parent or append it to one
    * @method EyeElement#parent
-   * @param {HTMLElement} par
+   * @param {HTMLElement|EyeElement} par
    * @returns {EyeElement}
    */
   parent: function (par) {
@@ -688,11 +701,12 @@ EyeElement.prototype = {
   /**
    * Returns whether current node is the same/equal(depending on `check`) as the passed node or not
    * @method EyeElement#is
-   * @param {Node} node
+   * @param {HTMLElement|EyeElement} node
    * @param {string} [check] check type `same`, `equal`
    * @returns {boolean}
    */
   is: function (node, check) {
+    node = node instanceof EyeElement ? node.raw : node;
     if (this.raw instanceof NodeList) {
       console.warn(`[EyeJS] .is is not functional with multi selected elements`);
       return this;
@@ -923,9 +937,46 @@ EyeElement.prototype = {
    * @returns 
    */
   val: function (value) {
-    if (value) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx,a]) => a.value = value);
+    if (value) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, a]) => a.value = value);
     else return (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).value;
     return this;
+  },
+  /**
+   * Serialize this element to send it over network, returns 3 formats `json`, `url` & `fd`(formData) 
+   * @method EyeElement#serialize
+   * @param {{inputs: Array<string>}} opts
+   * @returns {{json: Object, url: String, fd: FormData}}
+   */
+  serialize: function (opts) {
+    opts = opts || {};
+    let {
+      inputs = ["input", "textarea", "select"],
+    } = opts;
+    if (this.raw instanceof HTMLElement) {
+      let out = {
+        json: {},
+        url: "",
+        fd: new FormData()
+      };
+      this.raw.querySelectorAll(inputs.join(','))
+        .forEach((inp, i) => {
+          let name = inp.name || inp.dataset.name;
+          let value = inp.value || inp.textContent;
+          if (typeof opts[name] === "function") value = opts[name](inp);
+
+          if (inp.type == "file")
+            inp.files.forEach(file => {
+              out.fd.append(name, file);
+            });
+          else {
+            out.json[name] = value;
+            out.fd.append(name, value);
+          }
+        });
+
+      out.url = new URLSearchParams(out.json).toString();
+      return out;
+    } else console.warn(`[EyeJS] this is a multi selection, it's not serializable!`);
   }
 };
 

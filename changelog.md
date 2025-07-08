@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.2.0] - 2025-07-07
+
+### Added
+
+ - new `.serialize` function for form elements, check out [READM.md](./readme.md) for tutorial
+
+### Fixed
+
+ - PROBLEM: `.append` function not accepting EyeElement as parameter(only accept pure HTMLElements), now accepts both.
+ - PROBLEM: `.replaceWith` also accepts HTMLElements only, fixed to accept Eye elements too.
+ - PROBLEM: `.is` only accepts HTMLElement, fixed to accept EyeElement too.
+
 ## [3.1.1] - 2025-07-07
 
 ### Added
@@ -15,17 +27,17 @@
 
 ### Added
 
- - new `append` function with flexible `pos` to expand wide range of opportunities
- - new `replaceWith` function
- - new `parent` set/get function
- - new `is` to compare nodes with flexible `check`
- - new `each` to run multi selected elements
- - new `off` function to remove event listeners
- - new `trigger` function to ease controlling events
- - new `find` function to find sub elements with `multiple` wild card parameter
- - new `clone` function to clone current node
- - new `compute` function to get element computed style declaration or DOMRect box
- - new `pointer` function to unleash the PointerLock API and pointerCapture features 
+ - new `.append` function with flexible `pos` to expand wide range of opportunities
+ - new `.replaceWith` function
+ - new `.parent` set/get function
+ - new `.is` to compare nodes with flexible `check`
+ - new `.each` to run multi selected elements
+ - new `.off` function to remove event listeners
+ - new `.trigger` function to ease controlling events
+ - new `.find` function to find sub elements with `multiple` wild card parameter
+ - new `.clone` function to clone current node
+ - new `.compute` function to get element computed style declaration or DOMRect box
+ - new `.pointer` function to unleash the PointerLock API and pointerCapture features 
 
 ### Changed
 

@@ -66,8 +66,50 @@ baron.on("click",cb); // events handling
 baron.click(cb); // triggering or handling events
 
 baron.child(0); // getting child number 0
+```
 
-baron.refresh(); // special function that automate getting data from server and displaying it
+## Serializing form elements fn `.serialize`( param : opts )
+
+Serializing is transcoding form inputs data into an appropriate string format that you can send over the network to the server.
+ 
+The function will select all sub inputs, select, textarea elements and return their values, in order to narrow the selection you can pre-define the inputs you want to select in `opts.inputs`, which also offers `custom-input` & `custom-getter` as follow:
+ - `custom-inputs`: When your form contains custom inputs(div with special input features for example), you define them in the `opts.inputs` by a selector like `.special-input`, `#specialinp`... etc.
+ - `custom-getters`: the naming convention is only for explainatory purpose, this feature basically nameless, It's the ability to provide a custom way to subtract the data of certain input/custom, by defining a function with the name of that input/custom, here's how u do it:
+   - `opts.[fieldname]`: (inp) => inp.child(0).val();
+ 
+```html
+<form class="createUser">
+    <input type="text" name="username">
+    <input type="password" name="password">
+    <div data-name="hooby" class="custom-input" contentEditable>
+        user hobbies: 
+            <div class="list">
+                <span>singing</span>
+                <span>dancing</span>
+                <span>writing</span>
+            </div>
+    </div>
+    <button>submit</button>
+</form>
+```
+```javascript
+let form = eye('form.createUser');
+
+let opts = {
+    // optionally identify the inputs to serialize adding custom inputs
+    inputs: ['input','select','.custom-input'],
+    hobby: (inp)=>{
+        let v = [];
+        // this will select the custom-input .list>span spans
+        // get their values and push it into `v` array.
+        inp.find(".list>span",true).each(span => v.push(span.textContext));
+        // then return the value as string by joining it using ','
+        return v.join(',');
+    }
+}
+
+let data = form.serialize(opts);
+// send data over network using jcall/fetch/axios ...
 ```
 
 ## `~Models~`
