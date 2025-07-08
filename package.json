@@ -1,6 +1,6 @@
 {
   "name": "eyeejs",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "description": "Library that make document manipulation a lot easier",
   "main": "./src/eye.js",
   "module": "dist/eye.esm.js",
