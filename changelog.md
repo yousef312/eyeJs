@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.3.0] - 2025-07-009
+
+### Added
+
+ - new `.redefine` function that redefine how to set/get or use `.text` and `.val` in general
+
+### Fixed
+
+ - Accessing children length is now possible using empty/parameterless call of `.child`
+
 ## [3.2.0] - 2025-07-08
 
 ### Added

@@ -66,6 +66,23 @@ baron.on("click",cb); // events handling
 baron.click(cb); // triggering or handling events
 
 baron.child(0); // getting child number 0
+baron.child(); // getting children length
+```
+
+## Redefine set/get features of .text and .val
+
+You can modify the way you use `.text` and `.val` using `.redefine`
+
+```JavaScript
+let customInp = eye('div',{ class: "custom-inp", parent: form });
+
+customInp.redefine("text",(action, value, elm)=>{
+    if(action == "set"){
+        return value.join(" || ");
+    } else if(action === "get") {
+        return value.split(" || ");
+    }
+})
 ```
 
 ## Serializing form elements fn `.serialize`( param : opts )
