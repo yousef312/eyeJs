@@ -517,7 +517,7 @@ EyeElement.prototype = {
   html: function (html) {
     let out = "";
     (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
-      if (!html) return out = elm.innerHTML;// getting the first one and exiting
+      if (html === undefined) return out = elm.innerHTML;// getting the first one and exiting
       elm.innerHTML = html;
     })
     return out ? out : this;
@@ -531,7 +531,7 @@ EyeElement.prototype = {
   text: function (text) {
     let out = "";
     (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
-      if (!text) return out = this.customSet.text("get", elm.textContent, elm);
+      if (text === undefined) return out = this.customSet.text("get", elm.textContent, elm);
       elm.textContent = this.customSet.text("set", text, elm);
     })
     return out ? out : this;
@@ -949,7 +949,7 @@ EyeElement.prototype = {
    * @returns 
    */
   val: function (value) {
-    if (value) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, a]) => a.value = this.customSet.value("set", value, a));
+    if (value != undefined) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, a]) => a.value = this.customSet.value("set", value, a));
     else {
       let it = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw);
       return this.customSet.value("get", it.value, it);
@@ -1002,8 +1002,6 @@ EyeElement.prototype = {
   redefine: function (type, process) {
     if (["text", "value"].includes(type) && typeof process == "function")
       this.customSet[type] = process;
-
-    
     return this;
   }
 };

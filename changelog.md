@@ -1,6 +1,12 @@
 # Changelog
 
-## [3.3.0] - 2025-07-009
+## [3.3.2] - 2025-07-10
+
+### Fixed
+
+ - fixed `.html` `.text` and `.val` to accept empty strings two!
+
+## [3.3.0] - 2025-07-09
 
 ### Added
 

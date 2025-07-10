@@ -399,6 +399,17 @@
      * @type {Map<String,Set<{callback: function, target: string}>>}
      */
     this.dlgListeners = new Map();
+
+    let normalSetterGetter = (action, v, elm) => v;
+    /**
+     * Custom way or modifier that redefine the way you set/get
+     * this element `textContent` or `value`:
+     * - access this feature from `.redefine` method.
+     */
+    this.customSet = {
+      value: normalSetterGetter,
+      text: normalSetterGetter
+    };
   }
   EyeElement.prototype = {
     /**
@@ -512,7 +523,7 @@
     html: function (html) {
       let out = "";
       (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
-        if (!html) return out = elm.innerHTML;// getting the first one and exiting
+        if (html === undefined) return out = elm.innerHTML;// getting the first one and exiting
         elm.innerHTML = html;
       });
       return out ? out : this;
@@ -526,8 +537,8 @@
     text: function (text) {
       let out = "";
       (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
-        if (!text) return out = elm.textContent;
-        elm.textContent = text;
+        if (text === undefined) return out = this.customSet.text("get", elm.textContent, elm);
+        elm.textContent = this.customSet.text("set", text, elm);
       });
       return out ? out : this;
     },
@@ -932,8 +943,9 @@
      * @returns {EyeElement|null}
      */
     child: function (index) {
-      let it = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).children[index];
-      if (it) return eye(it);
+      let it = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw);
+      if (index === undefined) return it.children.length;
+      if (it.children[index]) return eye(it.children[index]);
       return null;
     },
     /**
@@ -943,8 +955,11 @@
      * @returns 
      */
     val: function (value) {
-      if (value) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, a]) => a.value = value);
-      else return (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).value;
+      if (value != undefined) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, a]) => a.value = this.customSet.value("set", value, a));
+      else {
+        let it = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw);
+        return this.customSet.value("get", it.value, it);
+      }
       return this;
     },
     /**
@@ -983,6 +998,17 @@
         out.url = new URLSearchParams(out.json).toString();
         return out;
       } else console.warn(`[EyeJS] this is a multi selection, it's not serializable!`);
+    },
+    /**
+     * Redefine the way `.text` or `.val` set or get data to and from this element.
+     * @method EyeElement#redefine
+     * @param {"text" | "value"} type 
+     * @param {(action: "set" | "get", value: *, elm: EyeElement) => *} process 
+     */
+    redefine: function (type, process) {
+      if (["text", "value"].includes(type) && typeof process == "function")
+        this.customSet[type] = process;
+      return this;
     }
   };
 
