@@ -542,7 +542,7 @@ EyeElement.prototype = {
   data: function (key, value) {
     if (!localdata.has(this)) localdata.set(this, {});
     if (key) {
-      if (value) localdata.get(this)[key] = value;
+      if (value != undefined) localdata.get(this)[key] = value;
       else return localdata.get(this)[key];
     }
     return this;
