@@ -325,6 +325,8 @@
     return n.toLowerCase();
   }
 
+  const localdata = new WeakMap();
+
   /**
    * cmcl stands for Create Model Children Layers, recursively creates model layers one by one
    * @param {EyeElement} parent
@@ -387,12 +389,6 @@
      * @type {number}
      */
     this.length = 0;
-
-    /**
-     * Used to store data locally
-     * @type {WeakMap}
-     */
-    this.datacollection = new WeakMap();
 
     /**
      * Used to store delegated events listeners
@@ -550,9 +546,10 @@
      * @returns {EyeElement|string}
      */
     data: function (key, value) {
+      if (!localdata.has(this)) localdata.set(this, {});
       if (key) {
-        if (value) this.datacollection.set(key, value);
-        else return this.datacollection.get(key);
+        if (value) localdata.get(this)[key] = value;
+        else return localdata.get(this)[key];
       }
       return this;
     },

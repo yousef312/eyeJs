@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.3.3] - 2025-07-11
+
+### Fixed
+
+ - error when using `.data`, fixed!
+
 ## [3.3.2] - 2025-07-10
 
 ### Fixed
