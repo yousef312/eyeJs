@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.4.0] - 2025-07-16
+
+### Added
+
+ - new `.after` function 
+ - new `.before` function 
+ - new `.animate` function 
+
 ## [3.3.4] - 2025-07-11
 
 ### Fixed
