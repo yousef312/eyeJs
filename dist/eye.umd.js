@@ -325,6 +325,8 @@
     return n.toLowerCase();
   }
 
+  const isPlainObject = (obj) => obj.toString() === '[Object object]';
+
   /**
    * cmcl stands for Create Model Children Layers, recursively creates model layers one by one
    * @param {EyeElement} parent
@@ -399,6 +401,17 @@
      * @type {Map<String,Set<{callback: function, target: string}>>}
      */
     this.dlgListeners = new Map();
+
+    let normalSetterGetter = (action, v, elm) => v;
+    /**
+     * Custom way or modifier that redefine the way you set/get
+     * this element `textContent` or `value`:
+     * - access this feature from `.redefine` method.
+     */
+    this.customSet = {
+      value: normalSetterGetter,
+      text: normalSetterGetter
+    };
   }
   EyeElement.prototype = {
     /**
@@ -526,8 +539,8 @@
     text: function (text) {
       let out = "";
       (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
-        if (!text) return out = elm.textContent;
-        elm.textContent = text;
+        if (!text) return out = this.customSet.text("get", elm.textContent, elm);
+        elm.textContent = this.customSet.text("set", text, elm);
       });
       return out ? out : this;
     },
@@ -631,7 +644,7 @@
      * Append one or more elements to the current element
      * @method EyeElement#append
      * @param {HTMLElement|Array<Node|EyeElement>} elm
-     * @param {string} [pos] [optional]
+     * @param {"next" | "after" | "previous" | "before"} [pos] [optional]
      * @returns {EyeElement}
      */
     append: function (elm, pos) {
@@ -708,7 +721,7 @@
      * Returns whether current node is the same/equal(depending on `check`) as the passed node or not
      * @method EyeElement#is
      * @param {HTMLElement|EyeElement} node
-     * @param {string} [check] check type `same`, `equal`
+     * @param {"connected" | "same" | "equal"} [check] check type `same`, `equal`
      * @returns {boolean}
      */
     is: function (node, check) {
@@ -894,7 +907,7 @@
     /**
      * Compute DOMRect or style declaration of current element
      * @method EyeElement#compute
-     * @param {string} type 
+     * @param {"bounds" | "style"} type 
      * @returns {DOMRect|CSSStyleDeclaration}
      */
     compute: function (type) {
@@ -908,21 +921,20 @@
     /**
      * Activate/disactive different pointer features such as PointerLock, pointerCapture...
      * @method EyeElement#pointer
-     * @param {string} action 
+     * @param {"capture" | "lock"} action 
      * @param {boolean} status 
-     * @param {string} [pid]  
+     * @param {string} [pid] the PointerEvent.pointerId attribute
      * @returns {EyeElement}
      */
     pointer: function (action, status, pid) {
-      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
-        if (action === "capture") {
-          if (status === true) elm.setPointerCapture(pid);
-          else elm.releasePointerCapture(pid);
-        } else if (action === "lock") {
-          if (status === true) elm.requestPointerLock();
-          else document.exitPointerLock();
-        }
-      });
+      let elm = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw);
+      if (action === "capture") {
+        if (status === true) elm.setPointerCapture(pid);
+        else elm.releasePointerCapture(pid);
+      } else if (action === "lock") {
+        if (status === true) elm.requestPointerLock();
+        else document.exitPointerLock();
+      }
       return this;
     },
     /**
@@ -932,8 +944,9 @@
      * @returns {EyeElement|null}
      */
     child: function (index) {
-      let it = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).children[index];
-      if (it) return eye(it);
+      let it = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw);
+      if (index === undefined) return it.children.length;
+      if (it.children[index]) return eye(it.children[index]);
       return null;
     },
     /**
@@ -943,8 +956,11 @@
      * @returns 
      */
     val: function (value) {
-      if (value) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, a]) => a.value = value);
-      else return (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).value;
+      if (value) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, a]) => a.value = this.customSet.value("set", value, a));
+      else {
+        let it = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw);
+        return this.customSet.value("get", it.value, it);
+      }
       return this;
     },
     /**
@@ -983,6 +999,55 @@
         out.url = new URLSearchParams(out.json).toString();
         return out;
       } else console.warn(`[EyeJS] this is a multi selection, it's not serializable!`);
+    },
+    /**
+     * Redefine the way `.text` or `.val` set or get data to and from this element.
+     * @method EyeElement#redefine
+     * @param {"text" | "value"} type 
+     * @param {(action: "set" | "get", value: *, elm: EyeElement) => *} process 
+     */
+    redefine: function (type, process) {
+      if (["text", "value"].includes(type) && typeof process == "function")
+        this.customSet[type] = process;
+      return this;
+    },
+    /**
+   * @overload
+   * @param {{left: number, top: number, smooth: boolean, relative: boolean}} opts
+   */
+    /**
+     * @overload
+     * @param {number} left
+     * @param {number} top
+     *
+     */
+    /**
+     * Scroll through the object with different aspects.
+     * @method EyeElement#scroll
+     * @param {number|{left: number, top: number, smooth: boolean, relative: boolean}} left 
+     * @param {number} [arg2] 
+     */
+    scroll: function (left, arg2) {
+      let relative = false;
+      let scrollOptions = {};
+      if (isPlainObject(left)) {
+        relative = left.relative === true ? true : false;
+        scrollOptions.behavior = left.smooth === true ? "smooth" : "default";
+        if (typeof left.top == "number")
+          scrollOptions.top = left.top;
+        if (typeof left.left == "number")
+          scrollOptions.left = left.left;
+      } else {
+        if (typeof left === "number") scrollOptions.left = left;
+        if (typeof arg2 === "number") scrollOptions.top = arg2;
+      }
+
+      if (scrollOptions.top === null && scrollOptions.left === null) return;
+
+      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+        if (relative) elm.scrollBy(scrollOptions);
+        else elm.scrollTo(scrollOptions);
+      });
     }
   };
 
@@ -1028,6 +1093,28 @@
       };
     } else return new EyeElement().init(tag, attrs, css);
   }
+
+  eye('div');
+
+  /**
+   * Quickly select all `selectors` and set their `text` to the given string
+   * @param {string} selector 
+   * @param {string} text 
+   */
+  eye.text = function (selector, text) {
+    document.querySelectorAll(selector).forEach(item => item.textContent = text);
+    return eye;
+  };
+
+  /**
+   * Quickly select all `selectors` and set their `html` to the given string
+   * @param {string} selector 
+   * @param {string} html 
+   */
+  eye.html = function (selector, html) {
+    document.querySelectorAll(selector).forEach(item => item.innerHTML = html);
+    return;
+  };
 
   // gloablly exposed
   window.eye = eye;

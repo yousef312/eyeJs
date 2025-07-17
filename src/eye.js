@@ -319,6 +319,8 @@ function flat(word) {
   return n.toLowerCase();
 }
 
+const isPlainObject = (obj) => obj.toString() === '[Object object]';
+
 /**
  * cmcl stands for Create Model Children Layers, recursively creates model layers one by one
  * @param {EyeElement} parent
@@ -636,7 +638,7 @@ EyeElement.prototype = {
    * Append one or more elements to the current element
    * @method EyeElement#append
    * @param {HTMLElement|Array<Node|EyeElement>} elm
-   * @param {string} [pos] [optional]
+   * @param {"next" | "after" | "previous" | "before"} [pos] [optional]
    * @returns {EyeElement}
    */
   append: function (elm, pos) {
@@ -713,7 +715,7 @@ EyeElement.prototype = {
    * Returns whether current node is the same/equal(depending on `check`) as the passed node or not
    * @method EyeElement#is
    * @param {HTMLElement|EyeElement} node
-   * @param {string} [check] check type `same`, `equal`
+   * @param {"connected" | "same" | "equal"} [check] check type `same`, `equal`
    * @returns {boolean}
    */
   is: function (node, check) {
@@ -899,7 +901,7 @@ EyeElement.prototype = {
   /**
    * Compute DOMRect or style declaration of current element
    * @method EyeElement#compute
-   * @param {string} type 
+   * @param {"bounds" | "style"} type 
    * @returns {DOMRect|CSSStyleDeclaration}
    */
   compute: function (type) {
@@ -913,21 +915,20 @@ EyeElement.prototype = {
   /**
    * Activate/disactive different pointer features such as PointerLock, pointerCapture...
    * @method EyeElement#pointer
-   * @param {string} action 
+   * @param {"capture" | "lock"} action 
    * @param {boolean} status 
-   * @param {string} [pid]  
+   * @param {string} [pid] the PointerEvent.pointerId attribute
    * @returns {EyeElement}
    */
   pointer: function (action, status, pid) {
-    (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
-      if (action === "capture") {
-        if (status === true) elm.setPointerCapture(pid);
-        else elm.releasePointerCapture(pid);
-      } else if (action === "lock") {
-        if (status === true) elm.requestPointerLock();
-        else document.exitPointerLock();
-      }
-    });
+    let elm = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw);
+    if (action === "capture") {
+      if (status === true) elm.setPointerCapture(pid);
+      else elm.releasePointerCapture(pid);
+    } else if (action === "lock") {
+      if (status === true) elm.requestPointerLock();
+      else document.exitPointerLock();
+    }
     return this;
   },
   /**
@@ -1002,11 +1003,47 @@ EyeElement.prototype = {
   redefine: function (type, process) {
     if (["text", "value"].includes(type) && typeof process == "function")
       this.customSet[type] = process;
-
-    
     return this;
+  },
+  /**
+ * @overload
+ * @param {{left: number, top: number, smooth: boolean, relative: boolean}} opts
+ */
+  /**
+   * @overload
+   * @param {number} left
+   * @param {number} top
+   *
+   */
+  /**
+   * Scroll through the object with different aspects.
+   * @method EyeElement#scroll
+   * @param {number|{left: number, top: number, smooth: boolean, relative: boolean}} left 
+   * @param {number} [arg2] 
+   */
+  scroll: function (left, arg2) {
+    let relative = false;
+    let scrollOptions = {};
+    if (isPlainObject(left)) {
+      relative = left.relative === true ? true : false;
+      scrollOptions.behavior = left.smooth === true ? "smooth" : "default";
+      if (typeof left.top == "number")
+        scrollOptions.top = left.top;
+      if (typeof left.left == "number")
+        scrollOptions.left = left.left;
+    } else {
+      if (typeof left === "number") scrollOptions.left = left;
+      if (typeof arg2 === "number") scrollOptions.top = arg2;
+    }
+
+    if (scrollOptions.top === null && scrollOptions.left === null) return;
+
+    (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+      if (relative) elm.scrollBy(scrollOptions);
+      else elm.scrollTo(scrollOptions)
+    })
   }
-};
+}
 
 /**
  * Creates or select nodes using css selectors, offering a pack of useful functions to use around your code!
@@ -1051,6 +1088,29 @@ function eye(tag, attrs, css) {
   } else return new EyeElement().init(tag, attrs, css);
 }
 
+let a = eye('div');
+
+/**
+ * Quickly select all `selectors` and set their `text` to the given string
+ * @param {string} selector 
+ * @param {string} text 
+ */
+eye.text = function (selector, text) {
+  document.querySelectorAll(selector).forEach(item => item.textContent = text);
+  return eye;
+}
+
+/**
+ * Quickly select all `selectors` and set their `html` to the given string
+ * @param {string} selector 
+ * @param {string} html 
+ */
+eye.html = function (selector, html) {
+  document.querySelectorAll(selector).forEach(item => item.innerHTML = html);
+  return;
+}
+
 // gloablly exposed
 window.eye = eye;
+
 export default eye;

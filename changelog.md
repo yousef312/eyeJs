@@ -1,6 +1,13 @@
 # Changelog
 
-## [3.3.0] - 2025-07-009
+## [3.3.1] - 2025-07-17
+
+### Changed
+
+ - `.pointer` only effects the first element if the selection is a collection
+ - Better commentations and param definitions.
+
+## [3.3.0] - 2025-07-09
 
 ### Added
 
