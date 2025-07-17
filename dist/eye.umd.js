@@ -325,7 +325,7 @@
     return n.toLowerCase();
   }
 
-  const isPlainObject = (obj) => obj.toString() === '[Object object]';
+  const localdata = new WeakMap();
 
   /**
    * cmcl stands for Create Model Children Layers, recursively creates model layers one by one
@@ -391,12 +391,6 @@
     this.length = 0;
 
     /**
-     * Used to store data locally
-     * @type {WeakMap}
-     */
-    this.datacollection = new WeakMap();
-
-    /**
      * Used to store delegated events listeners
      * @type {Map<String,Set<{callback: function, target: string}>>}
      */
@@ -460,7 +454,7 @@
         }
       }
 
-      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+      this.each((elm, idx) => {
         let parentElm = null;
         if (attrs)
           for (const key in attrs) {
@@ -510,9 +504,8 @@
      * @returns {EyeElement}
      */
     each: function (cb) {
-      let _this = this;
       (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
-        cb(elm, idx, _this);
+        cb(elm, idx, this);
       });
       return this;
     },
@@ -524,8 +517,8 @@
      */
     html: function (html) {
       let out = "";
-      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
-        if (!html) return out = elm.innerHTML;// getting the first one and exiting
+      this.each((elm, idx) => {
+        if (html === undefined) return out = elm.innerHTML;// getting the first one and exiting
         elm.innerHTML = html;
       });
       return out ? out : this;
@@ -538,8 +531,8 @@
      */
     text: function (text) {
       let out = "";
-      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
-        if (!text) return out = this.customSet.text("get", elm.textContent, elm);
+      this.each((elm, idx) => {
+        if (text === undefined) return out = this.customSet.text("get", elm.textContent, elm);
         elm.textContent = this.customSet.text("set", text, elm);
       });
       return out ? out : this;
@@ -552,9 +545,10 @@
      * @returns {EyeElement|string}
      */
     data: function (key, value) {
+      if (!localdata.has(this)) localdata.set(this, {});
       if (key) {
-        if (value) this.datacollection.set(key, value);
-        else return this.datacollection.get(key);
+        if (value != undefined) localdata.get(this)[key] = value;
+        else return localdata.get(this)[key];
       }
       return this;
     },
@@ -567,7 +561,7 @@
      */
     attr: function (name, value) {
       let out = "";
-      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+      this.each((elm, idx) => {
         if (name.indexOf("data-") === 0) {
           let [key, val] = name.split("-").map((a) => a.trim());
           // modify data
@@ -593,7 +587,7 @@
      */
     class: function (actions) {
       let out = "";
-      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+      this.each((elm, idx) => {
         if (typeof actions === "number") return out = elm.classList.item(actions);
 
         actions.split(" ").forEach((action) => {
@@ -622,7 +616,7 @@
      * @returns {EyeElement}
      */
     show: function (cls) {
-      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+      this.each((elm, idx) => {
         elm.style.display = cls ?? "inline-block";
       });
       return this;
@@ -634,7 +628,7 @@
      * @returns {EyeElement}
      */
     hide: function (opacity) {
-      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+      this.each((elm, idx) => {
         if (opacity) elm.style.opacity = 0;
         else elm.style.display = "none";
       });
@@ -676,6 +670,26 @@
       return this;
     },
     /**
+     * Insert element after this one
+     * @method EyeElement#after
+     * @param {EyeElement|HTMLElement} elm 
+     * @returns {EyeElement}
+     */
+    after: function (elm) {
+      (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).after(elm);
+      return this;
+    },
+    /**
+     * Insert element before this one
+     * @method EyeElement#before
+     * @param {EyeElement|HTMLElement} elm 
+     * @returns {EyeElement}
+     */
+    before: function (elm) {
+      (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).before(elm);
+      return this;
+    },
+    /**
      * Replace current element with the new element, or multiple elements with multiple selected elements
      * @method EyeElement#replaceWith
      * @param {...HTMLElement|EyeElement} elms
@@ -710,7 +724,7 @@
           throw new Error(
             "[EyeJS] Unable to append current element to parent because it's not HTMLElement"
           );
-        (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+        this.each((elm, idx) => {
           par.append(elm);
         });
         return this;
@@ -754,7 +768,7 @@
       if (attr) {
         let out = "";
         attr = flat(attr);
-        (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+        this.each((elm, idx) => {
           if (value === undefined) return out = elm.style[attr];
           elm.style[attr] = value;
         });
@@ -767,7 +781,7 @@
      * @returns {EyeElement}
      */
     remove: function () {
-      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+      this.each((elm, idx) => {
         elm.remove();
       });
       return this;
@@ -841,7 +855,7 @@
         );
       ev = ev.split(" ");
 
-      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+      this.each((elm, idx) => {
         ev.forEach(evt => elm.removeEventListener(evt, cb));
       });
       // now delegated events
@@ -864,7 +878,7 @@
      * @returns {EyeElement}
      */
     trigger: function (ev) {
-      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+      this.each((elm, idx) => {
         elm.dispatchEvent(getEvent(ev));
       });
       return this;
@@ -877,7 +891,7 @@
      */
     find: function (selector, multiple) {
       let found = [];
-      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+      this.each((elm, idx) => {
         elm.querySelectorAll(selector).forEach(res => found.push(res));
       });
       if (multiple === false)
@@ -923,7 +937,7 @@
      * @method EyeElement#pointer
      * @param {"capture" | "lock"} action 
      * @param {boolean} status 
-     * @param {string} [pid] the PointerEvent.pointerId attribute
+     * @param {string} [pid]  
      * @returns {EyeElement}
      */
     pointer: function (action, status, pid) {
@@ -956,7 +970,7 @@
      * @returns 
      */
     val: function (value) {
-      if (value) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, a]) => a.value = this.customSet.value("set", value, a));
+      if (value != undefined) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, a]) => a.value = this.customSet.value("set", value, a));
       else {
         let it = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw);
         return this.customSet.value("get", it.value, it);
@@ -1005,6 +1019,7 @@
      * @method EyeElement#redefine
      * @param {"text" | "value"} type 
      * @param {(action: "set" | "get", value: *, elm: EyeElement) => *} process 
+     * @returns {EyeElement}
      */
     redefine: function (type, process) {
       if (["text", "value"].includes(type) && typeof process == "function")
@@ -1012,42 +1027,18 @@
       return this;
     },
     /**
-   * @overload
-   * @param {{left: number, top: number, smooth: boolean, relative: boolean}} opts
-   */
-    /**
-     * @overload
-     * @param {number} left
-     * @param {number} top
-     *
+     * Animate current object 
+     * @method EyeElement#animate
+     * @param {Array<Keyframe>} keyframes 
+     * @param {KeyframeAnimationOptions} opts 
+     * @returns {Array<Animation>}
      */
-    /**
-     * Scroll through the object with different aspects.
-     * @method EyeElement#scroll
-     * @param {number|{left: number, top: number, smooth: boolean, relative: boolean}} left 
-     * @param {number} [arg2] 
-     */
-    scroll: function (left, arg2) {
-      let relative = false;
-      let scrollOptions = {};
-      if (isPlainObject(left)) {
-        relative = left.relative === true ? true : false;
-        scrollOptions.behavior = left.smooth === true ? "smooth" : "default";
-        if (typeof left.top == "number")
-          scrollOptions.top = left.top;
-        if (typeof left.left == "number")
-          scrollOptions.left = left.left;
-      } else {
-        if (typeof left === "number") scrollOptions.left = left;
-        if (typeof arg2 === "number") scrollOptions.top = arg2;
-      }
-
-      if (scrollOptions.top === null && scrollOptions.left === null) return;
-
-      (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
-        if (relative) elm.scrollBy(scrollOptions);
-        else elm.scrollTo(scrollOptions);
+    animate: function (keyframes, opts) {
+      let anmts = [];
+      this.each((elm, i) => {
+        anmts.push(elm.raw.animate(keyframes, opts));
       });
+      return anmts;
     }
   };
 
@@ -1093,28 +1084,6 @@
       };
     } else return new EyeElement().init(tag, attrs, css);
   }
-
-  eye('div');
-
-  /**
-   * Quickly select all `selectors` and set their `text` to the given string
-   * @param {string} selector 
-   * @param {string} text 
-   */
-  eye.text = function (selector, text) {
-    document.querySelectorAll(selector).forEach(item => item.textContent = text);
-    return eye;
-  };
-
-  /**
-   * Quickly select all `selectors` and set their `html` to the given string
-   * @param {string} selector 
-   * @param {string} html 
-   */
-  eye.html = function (selector, html) {
-    document.querySelectorAll(selector).forEach(item => item.innerHTML = html);
-    return;
-  };
 
   // gloablly exposed
   window.eye = eye;
