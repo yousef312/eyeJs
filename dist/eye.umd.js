@@ -1088,7 +1088,7 @@
         };
         return copy.refresh(attrs);
       };
-    } else return new EyeElement().init(tag, attrs, css);
+    } else return new EyeElement(tag, attrs, css);
   }
 
 
