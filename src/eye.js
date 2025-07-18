@@ -176,137 +176,137 @@ const events = [
 
 const htmlElements = [
   // Metadata
-  "base",
-  "head",
-  "link",
-  "meta",
-  "style",
-  "title",
+  "<base>",
+  "<head>",
+  "<link>",
+  "<meta>",
+  "<style>",
+  "<title>",
 
   // Sections
-  "body",
-  "address",
-  "article",
-  "aside",
-  "footer",
-  "header",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
-  "main",
-  "nav",
-  "section",
+  "<body>",
+  "<address>",
+  "<article>",
+  "<aside>",
+  "<footer>",
+  "<header>",
+  "<h1>",
+  "<h2>",
+  "<h3>",
+  "<h4>",
+  "<h5>",
+  "<h6>",
+  "<main>",
+  "<nav>",
+  "<section>",
 
   // Text content
-  "blockquote",
-  "dd",
-  "div",
-  "dl",
-  "dt",
-  "figcaption",
-  "figure",
-  "hr",
-  "li",
-  "ol",
-  "p",
-  "pre",
-  "ul",
+  "<blockquote>",
+  "<dd>",
+  "<div>",
+  "<dl>",
+  "<dt>",
+  "<figcaption>",
+  "<figure>",
+  "<hr>",
+  "<li>",
+  "<ol>",
+  "<p>",
+  "<pre>",
+  "<ul>",
 
   // Inline text semantics
-  "a",
-  "abbr",
-  "b",
-  "bdi",
-  "bdo",
-  "br",
-  "cite",
-  "code",
-  "data",
-  "dfn",
-  "em",
-  "i",
-  "kbd",
-  "mark",
-  "q",
-  "rp",
-  "rt",
-  "ruby",
-  "s",
-  "samp",
-  "small",
-  "span",
-  "strong",
-  "sub",
-  "sup",
-  "time",
-  "u",
-  "var",
-  "wbr",
+  "<a>",
+  "<abbr>",
+  "<b>",
+  "<bdi>",
+  "<bdo>",
+  "<br>",
+  "<cite>",
+  "<code>",
+  "<data>",
+  "<dfn>",
+  "<em>",
+  "<i>",
+  "<kbd>",
+  "<mark>",
+  "<q>",
+  "<rp>",
+  "<rt>",
+  "<ruby>",
+  "<s>",
+  "<samp>",
+  "<small>",
+  "<span>",
+  "<strong>",
+  "<sub>",
+  "<sup>",
+  "<time>",
+  "<u>",
+  "<var>",
+  "<wbr>",
 
   // Image and multimedia
-  "area",
-  "audio",
-  "img",
-  "map",
-  "track",
-  "video",
+  "<area>",
+  "<audio>",
+  "<img>",
+  "<map>",
+  "<track>",
+  "<video>",
 
   // Embedded content
-  "embed",
-  "iframe",
-  "object",
-  "picture",
-  "portal",
-  "source",
+  "<embed>",
+  "<iframe>",
+  "<object>",
+  "<picture>",
+  "<portal>",
+  "<source>",
 
   // Scripting
-  "canvas",
-  "noscript",
-  "script",
+  "<canvas>",
+  "<noscript>",
+  "<script>",
 
   // Demarcating edits
-  "del",
-  "ins",
+  "<del>",
+  "<ins>",
 
   // Table content
-  "caption",
-  "col",
-  "colgroup",
-  "table",
-  "tbody",
-  "td",
-  "tfoot",
-  "th",
-  "thead",
-  "tr",
+  "<caption>",
+  "<col>",
+  "<colgroup>",
+  "<table>",
+  "<tbody>",
+  "<td>",
+  "<tfoot>",
+  "<th>",
+  "<thead>",
+  "<tr>",
 
   // Forms
-  "button",
-  "datalist",
-  "fieldset",
-  "form",
-  "input",
-  "label",
-  "legend",
-  "meter",
-  "optgroup",
-  "option",
-  "output",
-  "progress",
-  "select",
-  "textarea",
+  "<button>",
+  "<datalist>",
+  "<fieldset>",
+  "<form>",
+  "<input>",
+  "<label>",
+  "<legend>",
+  "<meter>",
+  "<optgroup>",
+  "<option>",
+  "<output>",
+  "<progress>",
+  "<select>",
+  "<textarea>",
 
   // Interactive elements
-  "details",
-  "dialog",
-  "summary",
+  "<details>",
+  "<dialog>",
+  "<summary>",
 
   // Web components / scripting base
-  "slot",
-  "template",
+  "<slot>",
+  "<template>",
 ];
 
 function flat(word) {
@@ -346,10 +346,10 @@ function cmcl(parent, layer) {
     if (_set && _set_name) {
       obj.push({
         name: _set_name,
-        set: function (parent, value) {
+        set(parent, value) {
           let elm = parent.querySelector(`[data-value="${_set_name}"]`);
           elm.textContent = value ?? _set_default;
-        },
+        }
       });
     }
 
@@ -365,43 +365,36 @@ function cmcl(parent, layer) {
 }
 
 let delegationEvents = ["click", "submit", "input", "change", "keydown", "keyup", "keypress", "focusin", "focusout", "mouseover", "mouseout"];
+let normalSetterGetter = (action, v, elm) => v;
 
 /**
  * Eye wrapper offers a subset of functions that ease DOM minipulation! Power of JQuery with 
  * some a modern design and a bunch of new functions.
  * @author Yousef Neji
  */
-function EyeElement() {
+class EyeElement {
   /**
    * Raw html element
-   * @type {HTMLElement|NodeListOf<HTMLElement>}
+   * @type {HTMLElement}
    */
-  this.raw = null;
-
-  /**
-   * Lenght of the current selected elements
-   * @type {number}
-   */
-  this.length = 0;
+  raw = null;
 
   /**
    * Used to store delegated events listeners
-   * @type {Map<String,Set<{callback: function, target: string}>>}
+   * @type {Map<String,Set<{callback, target: string}>>}
    */
-  this.dlgListeners = new Map();
+  #dlgListeners = new Map();
 
-  let normalSetterGetter = (action, v, elm) => v;
   /**
    * Custom way or modifier that redefine the way you set/get
    * this element `textContent` or `value`:
    * - access this feature from `.redefine` method.
    */
-  this.customSet = {
+  #customSet = {
     value: normalSetterGetter,
     text: normalSetterGetter
   };
-}
-EyeElement.prototype = {
+
   /**
    * Called internally to initiate the main EyeElement functionalities
    * @method EyeElement#init
@@ -410,7 +403,7 @@ EyeElement.prototype = {
    * @param {Object} css
    * @returns {EyeElement}
    */
-  init: function (selector, attrs, css) {
+  constructor(selector, attrs, css) {
     let _this = this;
     if (selector instanceof HTMLElement) {
       this.raw = selector;
@@ -421,9 +414,8 @@ EyeElement.prototype = {
       // selecting
       let s = selector.slice(-1) === "!";
       this.raw = document.querySelectorAll(s ? selector.slice(0, -1) : selector);
-      this.length = this.raw.length;
 
-      if (this.length == 0) return null; // we stop everything here
+      if (this.raw.length == 0) return null; // we stop everything here
       if (this.length == 1 || s) this.raw = this.raw.item(0);
     }
 
@@ -433,7 +425,7 @@ EyeElement.prototype = {
      */
     function handler(e) {
       let name = e.type,
-        listeners = _this.dlgListeners,
+        listeners = _this.#dlgListeners,
         _etarget = e.target,
         me = this; // refers to the element being listening to the event
 
@@ -490,48 +482,57 @@ EyeElement.prototype = {
 
 
     return this;
-  },
+  }
+
+  /**
+   * Length of current selection
+   * @type {Number}
+   */
+  get length() {
+    return this.raw instanceof NodeList ? this.raw.length : 1;
+  }
+
   /**
    * Run(loop) through selected NodeList, or run a single call for one single element
    * @method EyeElement#each
    * @param {(elm: EyeElement, index: number, current: EyeElement)=>} cb 
    * @returns {EyeElement}
    */
-  each: function (cb) {
+  each(cb) {
     let _this = this;
     (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
       cb(elm, idx, this);
     })
     return this;
-  },
+  }
   /**
    * Set or get element html
    * @method EyeElement#html
    * @param {string} [html]
    * @returns {EyeElement|string}
    */
-  html: function (html) {
+  html(html) {
     let out = "";
     this.each((elm, idx) => {
       if (html === undefined) return out = elm.innerHTML;// getting the first one and exiting
       elm.innerHTML = html;
     })
-    return out ? out : this;
-  },
+    return out != undefined ? out : this;
+  }
   /**
    * Set or get element text
    * @method EyeElement#text
    * @param {string} [text]
    * @returns {EyeElement|string}
    */
-  text: function (text) {
+  text(text) {
     let out = "";
     this.each((elm, idx) => {
-      if (text === undefined) return out = this.customSet.text("get", elm.textContent, elm);
-      elm.textContent = this.customSet.text("set", text, elm);
+      if (text === undefined) return out = this.#customSet.text("get", elm.textContent, elm);
+      elm.textContent = this.#customSet.text("set", text, elm);
     })
-    return out ? out : this;
-  },
+    return out != undefined ? out : this;
+  }
   /**
    * Set or get element's data values
    * @method EyeElement#data
@@ -539,14 +540,15 @@ EyeElement.prototype = {
    * @param {*} [value]
    * @returns {EyeElement|string}
    */
-  data: function (key, value) {
+  data(key, value) {
     if (!localdata.has(this)) localdata.set(this, {});
     if (key) {
       if (value != undefined) localdata.get(this)[key] = value;
       else return localdata.get(this)[key];
     }
     return this;
-  },
+  }
+
   /**
    * Set or get an attribute value
    * @method EyeElement#attr
@@ -554,7 +556,7 @@ EyeElement.prototype = {
    * @param {*} [value]
    * @returns {EyeElement|string}
    */
-  attr: function (name, value) {
+  attr(name, value) {
     let out = "";
     this.each((elm, idx) => {
       if (name.indexOf("data-") === 0) {
@@ -573,14 +575,14 @@ EyeElement.prototype = {
       }
     })
     return out ? out : this;
-  },
+  }
   /**
    * Super fancy class function that allows to modify class with different methods in one
    * @method EyeElement#class
    * @param {string} actions
    * @returns {EyeElement|string}
    */
-  class: function (actions) {
+  class(actions) {
     let out = "";
     this.each((elm, idx) => {
       if (typeof actions === "number") return out = elm.classList.item(actions);
@@ -602,33 +604,33 @@ EyeElement.prototype = {
       if (out) return;
     })
 
-    return out ? out : this;
-  },
+    return out != undefined ? out : this;
+  }
   /**
    * Show/display the element
    * @method EyeElement#show
    * @param {string} cls
    * @returns {EyeElement}
    */
-  show: function (cls) {
+  show(cls) {
     this.each((elm, idx) => {
       elm.style.display = cls ?? "inline-block";
     })
     return this;
-  },
+  }
   /**
    * Hide the element
    * @method EyeElement#hide
    * @param {boolean} opacity whether to hide by making invisible?
    * @returns {EyeElement}
    */
-  hide: function (opacity) {
+  hide(opacity) {
     this.each((elm, idx) => {
       if (opacity) elm.style.opacity = 0;
       else elm.style.display = "none";
     })
     return this;
-  },
+  }
   /**
    * Append one or more elements to the current element
    * @method EyeElement#append
@@ -636,7 +638,7 @@ EyeElement.prototype = {
    * @param {string} [pos] [optional]
    * @returns {EyeElement}
    */
-  append: function (elm, pos) {
+  append(elm, pos) {
     let nodes = [];
     (Array.isArray(elm) ? elm : [elm]).forEach(item => {
       if (item instanceof EyeElement) nodes.push(item.raw);
@@ -663,27 +665,27 @@ EyeElement.prototype = {
           break;
       }
     return this;
-  },
+  }
   /**
    * Insert element after this one
    * @method EyeElement#after
    * @param {EyeElement|HTMLElement} elm 
    * @returns {EyeElement}
    */
-  after: function (elm) {
+  after(elm) {
     (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).after(elm);
     return this;
-  },
+  }
   /**
    * Insert element before this one
    * @method EyeElement#before
    * @param {EyeElement|HTMLElement} elm 
    * @returns {EyeElement}
    */
-  before: function (elm) {
+  before(elm) {
     (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).before(elm);
     return this;
-  },
+  }
   /**
    * Replace current element with the new element, or multiple elements with multiple selected elements
    * @method EyeElement#replaceWith
@@ -691,7 +693,7 @@ EyeElement.prototype = {
    * @param {string} [pos] [optional]
    * @returns {EyeElement}
    */
-  replaceWith: function (...elms) {
+  replaceWith(...elms) {
     let nodes = [];
     (Array.isArray(elms) ? elms : [elms]).forEach(item => {
       if (item instanceof EyeElement) nodes.push(item.raw);
@@ -706,14 +708,14 @@ EyeElement.prototype = {
       this.raw.replaceWith(...nodes);
     }
     return this;
-  },
+  }
   /**
    * Get current element parent or append it to one
    * @method EyeElement#parent
    * @param {HTMLElement|EyeElement} par
    * @returns {EyeElement}
    */
-  parent: function (par) {
+  parent(par) {
     if (par) {
       if (!(par instanceof HTMLElement) && !(par instanceof EyeElement))
         throw new Error(
@@ -725,7 +727,7 @@ EyeElement.prototype = {
       return this;
     }
     return eye(this.raw instanceof NodeList ? this.raw.item(0).parentElement : this.raw.parentElement);
-  },
+  }
   /**
    * Returns whether current node is the same/equal(depending on `check`) as the passed node or not
    * @method EyeElement#is
@@ -733,7 +735,7 @@ EyeElement.prototype = {
    * @param {string} [check] check type `same`, `equal`
    * @returns {boolean}
    */
-  is: function (node, check) {
+  is(node, check) {
     node = node instanceof EyeElement ? node.raw : node;
     if (this.raw instanceof NodeList) {
       console.warn(`[EyeJS] .is is not functional with multi selected elements`);
@@ -751,7 +753,7 @@ EyeElement.prototype = {
         );
         return false;
     }
-  },
+  }
   /**
    * Set or get a css attribute
    * @method EyeElement#css
@@ -759,7 +761,7 @@ EyeElement.prototype = {
    * @param {string|number} [value]
    * @returns {EyeElement|string}
    */
-  css: function (attr, value) {
+  css(attr, value) {
     if (attr) {
       let out = "";
       attr = flat(attr);
@@ -767,20 +769,20 @@ EyeElement.prototype = {
         if (value === undefined) return out = elm.style[attr];
         elm.style[attr] = value;
       })
-      return out ? out : this;
+      return out != undefined ? out : this;
     } else return console.error(`[EyeJS] mission argument "attr" in function .css`);
-  },
+  }
   /**
    * Remove current element
    * @method EyeElement#remove
    * @returns {EyeElement}
    */
-  remove: function () {
+  remove() {
     this.each((elm, idx) => {
       elm.remove();
     })
     return this;
-  },
+  }
   /**
    * @overload
    * @param {string} ev
@@ -801,7 +803,7 @@ EyeElement.prototype = {
    * @param {function} [arg3]
    * @returns {EyeElement|void}
    */
-  on: function (ev, arg2, arg3) {
+  on(ev, arg2, arg3) {
     ev = ev.split(" ");
     let target = typeof arg2 === "string" ? arg2 : null;
     let cb = typeof arg2 === "function" ? arg2 : arg3;
@@ -819,9 +821,9 @@ EyeElement.prototype = {
         if (!delegationEvents.includes(evt))
           return outsider = evt; // outsider events 
 
-        if (!_this.dlgListeners.has(evt))
-          _this.dlgListeners.set(evt, new Set());
-        _this.dlgListeners.get(evt).add({ callback: cb, target });
+        if (!_this.#dlgListeners.has(evt))
+          _this.#dlgListeners.set(evt, new Set());
+        _this.#dlgListeners.get(evt).add({ callback: cb, target });
       } else {
         elms.forEach(([idx, elm]) => {
           elm.addEventListener(evt, cb);
@@ -833,7 +835,7 @@ EyeElement.prototype = {
       return console.error(`[EyeJS] trying to use delegation for an inappropriate event "${outsider}"`);
 
     return this;
-  },
+  }
   /**
    * Remove event listener of a specific event
    * @method EyeElement#off
@@ -841,9 +843,9 @@ EyeElement.prototype = {
    * @param {function} cb 
    * @returns {EyeElement|void}
    */
-  off: function (ev, cb) {
+  off(ev, cb) {
     let _this = this,
-      listeners = _this.dlgListeners;
+      listeners = _this.#dlgListeners;
     if (typeof cb != "function")
       return console.error(
         "[EyeJS] .off method is missing the actuall callback `cb` or not of type function"
@@ -865,26 +867,26 @@ EyeElement.prototype = {
         }
       }
     })
-  },
+  }
   /**
    * Trigger specific event for this element
    * @method EyeElement#trigger
    * @param {string} ev 
    * @returns {EyeElement}
    */
-  trigger: function (ev) {
+  trigger(ev) {
     this.each((elm, idx) => {
       elm.dispatchEvent(getEvent(ev));
     })
     return this;
-  },
+  }
   /**
    * Find one or multiple child elements by `selector`
    * @method EyeElement#find
    * @param {string} selector 
    * @param {boolean} [multiple] `true` by default 
    */
-  find: function (selector, multiple) {
+  find(selector, multiple) {
     let found = [];
     this.each((elm, idx) => {
       elm.querySelectorAll(selector).forEach(res => found.push(res));
@@ -892,14 +894,14 @@ EyeElement.prototype = {
     if (multiple === false)
       return found.length > 0 ? eye(found[0]) : null;
     return found.length > 0 ? (found.length == 1 ? eye(found[0]) : found.map(a => eye(a))) : null;
-  },
+  }
   /**
    * Returns a clone of current selected element/s
    * @method EyeElement#clone
    * @param {HTMLElement} [parent] optionally append new clone to a parent
    * @returns {Array<EyeElement>|EyeElement}
    */
-  clone: function (parent) {
+  clone(parent) {
     if (this.raw instanceof NodeList) {
       let list = [];
       this.raw.forEach(nd => {
@@ -912,21 +914,21 @@ EyeElement.prototype = {
       if (parent instanceof HTMLElement || parent instanceof EyeElement) parent.append(clone);
       return clone;
     }
-  },
+  }
   /**
    * Compute DOMRect or style declaration of current element
    * @method EyeElement#compute
    * @param {string} type 
    * @returns {DOMRect|CSSStyleDeclaration}
    */
-  compute: function (type) {
+  compute(type) {
     type = type || "bounds";
     if (type === "bounds")
       return (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).getBoundingClientRect();
     else if (type == "style")
       return getComputedStyle(this.raw instanceof NodeList ? this.raw.item(0) : this.raw)
     console.error(`[EyeJS] unkown type "${type}" in function .compute, possible values are "bounds" "style"`);
-  },
+  }
   /**
    * Activate/disactive different pointer features such as PointerLock, pointerCapture...
    * @method EyeElement#pointer
@@ -935,7 +937,7 @@ EyeElement.prototype = {
    * @param {string} [pid]  
    * @returns {EyeElement}
    */
-  pointer: function (action, status, pid) {
+  pointer(action, status, pid) {
     this.each((elm, idx) => {
       if (action === "capture") {
         if (status === true) elm.setPointerCapture(pid);
@@ -946,40 +948,40 @@ EyeElement.prototype = {
       }
     });
     return this;
-  },
+  }
   /**
    * Select a child of this element
    * @method EyeElement#child
    * @param {number} index 
    * @returns {EyeElement|null}
    */
-  child: function (index) {
+  child(index) {
     let it = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw);
     if (index === undefined) return it.children.length;
     if (it.children[index]) return eye(it.children[index]);
     return null;
-  },
+  }
   /**
    * Set/get the value of the current element
    * @method EyeElement#val
    * @param {*} value 
    * @returns 
    */
-  val: function (value) {
-    if (value != undefined) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, a]) => a.value = this.customSet.value("set", value, a));
+  val(value) {
+    if (value != undefined) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, a]) => a.value = this.#customSet.value("set", value, a));
     else {
       let it = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw);
-      return this.customSet.value("get", it.value, it);
+      return this.#customSet.value("get", it.value, it);
     }
     return this;
-  },
+  }
   /**
    * Serialize this element to send it over network, returns 3 formats `json`, `url` & `fd`(formData) 
    * @method EyeElement#serialize
    * @param {{inputs: Array<string>}} opts
    * @returns {{json: Object, url: String, fd: FormData}}
    */
-  serialize: function (opts) {
+  serialize(opts) {
     opts = opts || {};
     let {
       inputs = ["input", "textarea", "select"],
@@ -1009,7 +1011,7 @@ EyeElement.prototype = {
       out.url = new URLSearchParams(out.json).toString();
       return out;
     } else console.warn(`[EyeJS] this is a multi selection, it's not serializable!`);
-  },
+  }
   /**
    * Redefine the way `.text` or `.val` set or get data to and from this element.
    * @method EyeElement#redefine
@@ -1017,24 +1019,28 @@ EyeElement.prototype = {
    * @param {(action: "set" | "get", value: *, elm: EyeElement) => *} process 
    * @returns {EyeElement}
    */
-  redefine: function (type, process) {
+  redefine(type, process) {
     if (["text", "value"].includes(type) && typeof process == "function")
-      this.customSet[type] = process;
+      this.#customSet[type] = process;
     return this;
-  },
+  }
   /**
    * Animate current object 
    * @method EyeElement#animate
    * @param {Array<Keyframe>} keyframes 
    * @param {KeyframeAnimationOptions} opts 
-   * @returns {Array<Animation>}
+   * @returns {Array<Animation>|Animation}
    */
-  animate: function (keyframes, opts) {
+  animate(keyframes, opts) {
+    /**
+     * @type {Array<Animation>}
+     */
     let anmts = [];
+    opts.duration = opts.duration || 1000;
     this.each((elm, i) => {
       anmts.push(elm.raw.animate(keyframes, opts));
     })
-    return anmts;
+    return anmts.length == 1 ? anmts[0] : anmts;
   }
 };
 
@@ -1080,6 +1086,7 @@ function eye(tag, attrs, css) {
     };
   } else return new EyeElement().init(tag, attrs, css);
 }
+
 
 // gloablly exposed
 window.eye = eye;
