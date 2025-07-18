@@ -511,7 +511,7 @@ class EyeElement {
    * @returns {EyeElement|string}
    */
   html(html) {
-    let out = "";
+    let out = undefined;
     this.each((elm, idx) => {
       if (html === undefined) return out = elm.innerHTML;// getting the first one and exiting
       elm.innerHTML = html;
@@ -525,7 +525,7 @@ class EyeElement {
    * @returns {EyeElement|string}
    */
   text(text) {
-    let out = "";
+    let out = undefined;
     this.each((elm, idx) => {
       if (text === undefined) return out = this.#customSet.text("get", elm.textContent, elm);
       elm.textContent = this.#customSet.text("set", text, elm);
@@ -582,7 +582,7 @@ class EyeElement {
    * @returns {EyeElement|string}
    */
   class(actions) {
-    let out = "";
+    let out = undefined;
     this.each((elm, idx) => {
       if (typeof actions === "number") return out = elm.classList.item(actions);
 
@@ -762,7 +762,7 @@ class EyeElement {
    */
   css(attr, value) {
     if (attr) {
-      let out = "";
+      let out = undefined;
       attr = flat(attr);
       this.each((elm, idx) => {
         if (value === undefined) return out = elm.style[attr];
