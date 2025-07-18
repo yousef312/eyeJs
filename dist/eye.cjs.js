@@ -1057,7 +1057,7 @@ function eye(tag, attrs, css) {
 
     let [actag, ...ops] = tag.split(":")[1].split(" ").filter(a => a != "");
     // creating a model
-    let model = eye("div", {
+    let model = eye("<div>", {
       class: "eye-model " + actag + " " + ops.join(" "),
       data: {
         model: actag,
