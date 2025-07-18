@@ -411,7 +411,7 @@ class EyeElement {
       this.raw = selector;
     } else if (htmlElements.includes(selector)) {
       // creating a new element
-      this.raw = document.createElement(selector);
+      this.raw = document.createElement(selector.substring(1, selector.length - 1));
     } else {
       // selecting
       let s = selector.slice(-1) === "!";
