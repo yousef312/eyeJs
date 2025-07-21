@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.0.4] - 2025-07-18
+
+### Changed
+
+ - the libarary behavior changed now, instead of created element by directly puting them as `eye("div")`, now you do `eye("<div>")` instead for all elements ofc.
+ - library now uses ES6.
+ - `.animate` function now can return a direct animation object if selection is single.
+
 ## [3.4.1] - 2025-07-16
 
 ### Changed
@@ -27,7 +35,7 @@
 
  - fixed `.html` `.text` and `.val` to accept empty strings two!
 
-## [3.3.0] - 2025-07-09
+## [3.3.0] - 2025-07-009
 
 ### Added
 
