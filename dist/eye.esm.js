@@ -347,7 +347,7 @@ function cmcl(parent, layer) {
       obj.push({
         name: _set_name,
         set(parent, value) {
-          let elm = parent.querySelector(`[data-value="${_set_name}"]`);
+          let elm = parent.find(`[data-value="${_set_name}"]`);
           elm.textContent = value ?? _set_default;
         }
       });
@@ -377,7 +377,7 @@ class EyeElement {
    * Raw html element
    * @type {HTMLElement}
    */
-  raw = null;
+  #raw = null;
 
   /**
    * Used to store delegated events listeners
@@ -406,17 +406,17 @@ class EyeElement {
   constructor(selector, attrs, css) {
     let _this = this;
     if (selector instanceof HTMLElement) {
-      this.raw = selector;
+      this.#raw = selector;
     } else if (htmlElements.includes(selector)) {
       // creating a new element
-      this.raw = document.createElement(selector.substring(1, selector.length - 1));
+      this.#raw = document.createElement(selector.substring(1, selector.length - 1));
     } else {
       // selecting
       let s = selector.slice(-1) === "!";
-      this.raw = document.querySelectorAll(s ? selector.slice(0, -1) : selector);
+      this.#raw = document.querySelectorAll(s ? selector.slice(0, -1) : selector);
 
-      if (this.raw.length == 0) return null; // we stop everything here
-      if (this.length == 1 || s) this.raw = this.raw.item(0);
+      if (this.#raw.length == 0) return null; // we stop everything here
+      if (this.length == 1 || s) this.#raw = this.#raw.item(0);
     }
 
     /**
@@ -489,7 +489,15 @@ class EyeElement {
    * @type {Number}
    */
   get length() {
-    return this.raw instanceof NodeList ? this.raw.length : 1;
+    return this.#raw instanceof NodeList ? this.#raw.length : 1;
+  }
+
+  /**
+   * Raw html element
+   * @type {HTMLElement}
+   */
+  get raw(){
+    return this.#raw;
   }
 
   /**
@@ -499,7 +507,7 @@ class EyeElement {
    * @returns {EyeElement}
    */
   each(cb) {
-    (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, elm]) => {
+    (this.#raw instanceof NodeList ? [...this.#raw.entries()] : [[0, this.#raw]]).forEach(([idx, elm]) => {
       cb(elm, idx, this);
     });
     return this;
@@ -640,27 +648,27 @@ class EyeElement {
   append(elm, pos) {
     let nodes = [];
     (Array.isArray(elm) ? elm : [elm]).forEach(item => {
-      if (item instanceof EyeElement) nodes.push(item.raw);
+      if (item instanceof EyeElement) nodes.push(item.#raw);
       else if (item instanceof HTMLElement) nodes.push(item);
     });
-    if (this.raw instanceof NodeList) {
+    if (this.#raw instanceof NodeList) {
       console.warn(`[EyeJS] beware while using .append with multi selected elements`);
-      this.raw.forEach((itm, idx) => {
+      this.#raw.forEach((itm, idx) => {
         if (!nodes[idx]) return;
         itm.append(nodes[idx]);
       });
       return this;
     }
-    if (!pos) this.raw.append(...nodes);
+    if (!pos) this.#raw.append(...nodes);
     else
       switch (pos) {
         case "next":
         case "after":
-          this.raw.after(...nodes);
+          this.#raw.after(...nodes);
           break;
         case "previous":
         case "before":
-          this.raw.before(...nodes);
+          this.#raw.before(...nodes);
           break;
       }
     return this;
@@ -672,7 +680,7 @@ class EyeElement {
    * @returns {EyeElement}
    */
   after(elm) {
-    (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).after(elm);
+    (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw).after(elm);
     return this;
   }
   /**
@@ -682,7 +690,7 @@ class EyeElement {
    * @returns {EyeElement}
    */
   before(elm) {
-    (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).before(elm);
+    (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw).before(elm);
     return this;
   }
   /**
@@ -695,16 +703,16 @@ class EyeElement {
   replaceWith(...elms) {
     let nodes = [];
     (Array.isArray(elms) ? elms : [elms]).forEach(item => {
-      if (item instanceof EyeElement) nodes.push(item.raw);
+      if (item instanceof EyeElement) nodes.push(item.#raw);
       else if (item instanceof HTMLElement) nodes.push(item);
     });
-    if (this.raw instanceof NodeList) {
-      [...this.raw.entries()].forEach(([idx, elm]) => {
+    if (this.#raw instanceof NodeList) {
+      [...this.#raw.entries()].forEach(([idx, elm]) => {
         if (!nodes[idx]) return;
         elm.replaceWith(nodes[idx]);
       });
     } else {
-      this.raw.replaceWith(...nodes);
+      this.#raw.replaceWith(...nodes);
     }
     return this;
   }
@@ -725,7 +733,7 @@ class EyeElement {
       });
       return this;
     }
-    return eye(this.raw instanceof NodeList ? this.raw.item(0).parentElement : this.raw.parentElement);
+    return eye(this.#raw instanceof NodeList ? this.#raw.item(0).parentElement : this.#raw.parentElement);
   }
   /**
    * Returns whether current node is the same/equal(depending on `check`) as the passed node or not
@@ -735,17 +743,17 @@ class EyeElement {
    * @returns {boolean}
    */
   is(node, check) {
-    node = node instanceof EyeElement ? node.raw : node;
-    if (this.raw instanceof NodeList) {
+    node = node instanceof EyeElement ? node.#raw : node;
+    if (this.#raw instanceof NodeList) {
       console.warn(`[EyeJS] .is is not functional with multi selected elements`);
       return this;
     }
-    if (node === "connected") return this.raw.isConnected;
+    if (node === "connected") return this.#raw.isConnected;
     switch (check) {
       case "same":
-        return this.raw.isSameNode(node);
+        return this.#raw.isSameNode(node);
       case "equal":
-        return this.raw.isEqualNode(node);
+        return this.#raw.isEqualNode(node);
       default:
         console.error(
           `[EyeJS] Unknown check "${check}", possible values are ["same","equal","connected"]`
@@ -812,7 +820,7 @@ class EyeElement {
         "[EyeJS] .on method is missing the actuall callback `cb` or not of type function"
       );
 
-    let elms = (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]);
+    let elms = (this.#raw instanceof NodeList ? [...this.#raw.entries()] : [[0, this.#raw]]);
 
     let outsider = null;
     ev.forEach(evt => {
@@ -882,17 +890,14 @@ class EyeElement {
   /**
    * Find one or multiple child elements by `selector`
    * @method EyeElement#find
-   * @param {string} selector 
-   * @param {boolean} [multiple] `true` by default 
+   * @param {string} selector  
    */
-  find(selector, multiple) {
+  find(selector) {
     let found = [];
     this.each((elm, idx) => {
       elm.querySelectorAll(selector).forEach(res => found.push(res));
     });
-    if (multiple === false)
-      return found.length > 0 ? eye(found[0]) : null;
-    return found.length > 0 ? (found.length == 1 ? eye(found[0]) : found.map(a => eye(a))) : null;
+    return found.length == 1 ? found[0] : found;
   }
   /**
    * Returns a clone of current selected element/s
@@ -901,15 +906,15 @@ class EyeElement {
    * @returns {Array<EyeElement>|EyeElement}
    */
   clone(parent) {
-    if (this.raw instanceof NodeList) {
+    if (this.#raw instanceof NodeList) {
       let list = [];
-      this.raw.forEach(nd => {
+      this.#raw.forEach(nd => {
         list.push(nd.cloneNode(true));
       });
       if (parent instanceof HTMLElement || parent instanceof EyeElement) list.forEach(el => parent.append(el));
       return list;
     } else {
-      let clone = this.raw.cloneNode(true);
+      let clone = this.#raw.cloneNode(true);
       if (parent instanceof HTMLElement || parent instanceof EyeElement) parent.append(clone);
       return clone;
     }
@@ -923,9 +928,9 @@ class EyeElement {
   compute(type) {
     type = type || "bounds";
     if (type === "bounds")
-      return (this.raw instanceof NodeList ? this.raw.item(0) : this.raw).getBoundingClientRect();
+      return (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw).getBoundingClientRect();
     else if (type == "style")
-      return getComputedStyle(this.raw instanceof NodeList ? this.raw.item(0) : this.raw)
+      return getComputedStyle(this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw)
     console.error(`[EyeJS] unkown type "${type}" in function .compute, possible values are "bounds" "style"`);
   }
   /**
@@ -955,7 +960,7 @@ class EyeElement {
    * @returns {EyeElement|null}
    */
   child(index) {
-    let it = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw);
+    let it = (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw);
     if (index === undefined) return it.children.length;
     if (it.children[index]) return eye(it.children[index]);
     return null;
@@ -967,9 +972,9 @@ class EyeElement {
    * @returns 
    */
   val(value) {
-    if (value != undefined) (this.raw instanceof NodeList ? [...this.raw.entries()] : [[0, this.raw]]).forEach(([idx, a]) => a.value = this.#customSet.value("set", value, a));
+    if (value != undefined) (this.#raw instanceof NodeList ? [...this.#raw.entries()] : [[0, this.#raw]]).forEach(([idx, a]) => a.value = this.#customSet.value("set", value, a));
     else {
-      let it = (this.raw instanceof NodeList ? this.raw.item(0) : this.raw);
+      let it = (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw);
       return this.#customSet.value("get", it.value, it);
     }
     return this;
@@ -985,13 +990,13 @@ class EyeElement {
     let {
       inputs = ["input", "textarea", "select"],
     } = opts;
-    if (this.raw instanceof HTMLElement) {
+    if (this.#raw instanceof HTMLElement) {
       let out = {
         json: {},
         url: "",
         fd: new FormData()
       };
-      this.raw.querySelectorAll(inputs.join(','))
+      this.#raw.querySelectorAll(inputs.join(','))
         .forEach((inp, i) => {
           let name = inp.name || inp.dataset.name;
           let value = inp.value || inp.textContent;
@@ -1037,7 +1042,7 @@ class EyeElement {
     let anmts = [];
     opts.duration = opts.duration || 1000;
     this.each((elm, i) => {
-      anmts.push(elm.raw.animate(keyframes, opts));
+      anmts.push(elm.#raw.animate(keyframes, opts));
     });
     return anmts.length == 1 ? anmts[0] : anmts;
   }
@@ -1050,17 +1055,16 @@ class EyeElement {
  * @returns {EyeElement}
  */
 function eye(tag, attrs, css) {
-  if (typeof tag === "string" && tag.indexOf("model:") === 0) {
+  if (typeof tag === "string" && tag.indexOf("model:") === 0 || tag === "model") {
     if (!attrs) return console.error("[EyeJS] Model creation requires parameter 'attr' as prototype, none delivered!");
 
-    let [actag, ...ops] = tag.split(":")[1].split(" ").filter(a => a != "");
+    tag = tag.split(":");
+    let cls = ["eye-model"];
+    if (tag[1])
+      cls = cls.concat(tag[1].split(" ").filter(a => a != ""));
     // creating a model
     let model = eye("<div>", {
-      class: "eye-model " + actag + " " + ops.join(" "),
-      data: {
-        model: actag,
-        eyeModel: actag
-      }
+      class: cls.join(" "),
     });
 
     let sets = cmcl(model, attrs);
@@ -1070,7 +1074,7 @@ function eye(tag, attrs, css) {
      * @returns {ModelEyeElement}
      */
     return (attrs) => {
-      let copy = model.clone(attrs?.parent);
+      let copy = eye(model.clone(attrs?.parent));
       // define & attach the refresh function
       copy.refresh = function (attrs = {}) {
         let def = attrs.default === false ? false : true;

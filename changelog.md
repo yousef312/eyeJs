@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.0.0] - 2025-07-21
+
+### Changed
+
+ - library now uses ES6 class definition.
+ - `.find` function `multiple` parameter is removed, also it return an HTMLElement instead of EyeElement, and an array if many selectors were found.
+ - cloning a new model will return EyeElement instead of HTMLDivElement.
+
 ## [4.0.4] - 2025-07-18
 
 ### Changed
