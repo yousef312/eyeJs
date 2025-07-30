@@ -1,5 +1,24 @@
 # Changelog
 
+## [6.0.0] - 2025-07-30
+
+### Changed
+
+ - Library name changed to `eyjs`
+ - main function name changed to `e` instead of `eye`
+ - `after` `before` function now accepts both HTMLElement & EyeElement
+
+### Added
+ 
+ - new `childlen` attribute to get children length
+ - new `rAttr` function to remove attribute of an element
+ - new `client` function to access client attributes such as "clientWidth" "clientLeft" ..
+ - `.append` now also accepts new possible `pos` options `first`|`afterbegin` `last`|`beforeend`
+
+### Fixed
+
+ - fixed error when using `.animate` function
+
 ## [5.0.0] - 2025-07-21
 
 ### Changed

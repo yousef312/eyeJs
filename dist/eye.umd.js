@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.eye = factory());
-})(this, (function () { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.eye = {}));
+})(this, (function (exports) { 'use strict';
 
   /**
    * @typedef {Object} AttrMap
@@ -343,7 +343,7 @@
         .split("-")
         .map((a) => a.trim());
 
-      let elm = eye(tagName.trim(), {
+      let elm = e(tagName.trim(), {
         class: cls,
         parent,
         data: _set ? { value: _set_name } : undefined,
@@ -502,14 +502,14 @@
      * Raw html element
      * @type {HTMLElement}
      */
-    get raw(){
+    get raw() {
       return this.#raw;
     }
 
     /**
      * Run(loop) through selected NodeList, or run a single call for one single element
      * @method EyeElement#each
-     * @param {(elm: EyeElement, index: number, current: EyeElement)=>} cb 
+     * @param {(elm: HTMLElement, index: number, current: EyeElement)=>} cb 
      * @returns {EyeElement}
      */
     each(cb) {
@@ -590,7 +590,25 @@
       return out ? out : this;
     }
     /**
-     * Super fancy class function that allows to modify class with different methods in one
+     * Removing attribute of this element
+     * @type {string} attrName
+     * @returns {EyeElement}
+     */
+    rAttr(attrName) {
+      if (attrName) {
+        this.each((elm, idx) => {
+          elm.removeAttribute(attrName);
+        });
+      }
+      return this;
+    }
+    /**
+     * Super fancy class function that allows to modify class with different methods in one as follow:
+     *  - `"classname"`: add classname to the element.
+     *  - `"-classname"`: remove classname from class list.
+     *  - `"%classname"`: toggle classname existing.
+     *  - `"?classname"`: check classname existing in class list.
+     *  - `"classnameA/classnameB"`: replace classnameA by classnameB
      * @method EyeElement#class
      * @param {string} actions
      * @returns {EyeElement|string}
@@ -648,7 +666,7 @@
      * Append one or more elements to the current element
      * @method EyeElement#append
      * @param {HTMLElement|Array<Node|EyeElement>} elm
-     * @param {"next" | "after" | "previous" | "before"} [pos] [optional]
+     * @param {"next" | "after" | "previous" | "before" | "first" | "afterbegin" | "last" | "beforeend"} [pos] [optional]
      * @returns {EyeElement}
      */
     append(elm, pos) {
@@ -676,6 +694,14 @@
           case "before":
             this.#raw.before(...nodes);
             break;
+          case "afterbegin":
+            case "first":
+              this.#raw.prepend(...nodes);
+              break;
+          case "beforeend":
+            case "last":
+              this.#raw.append(...nodes);
+
         }
       return this;
     }
@@ -686,7 +712,7 @@
      * @returns {EyeElement}
      */
     after(elm) {
-      (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw).after(elm);
+      (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw).after(elm instanceof EyeElement ? elm.raw : elm);
       return this;
     }
     /**
@@ -696,7 +722,7 @@
      * @returns {EyeElement}
      */
     before(elm) {
-      (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw).before(elm);
+      (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw).before(elm instanceof EyeElement ? elm.raw : elm);
       return this;
     }
     /**
@@ -739,7 +765,7 @@
         });
         return this;
       }
-      return eye(this.#raw instanceof NodeList ? this.#raw.item(0).parentElement : this.#raw.parentElement);
+      return e(this.#raw instanceof NodeList ? this.#raw.item(0).parentElement : this.#raw.parentElement);
     }
     /**
      * Returns whether current node is the same/equal(depending on `check`) as the passed node or not
@@ -939,6 +965,18 @@
         return getComputedStyle(this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw)
       console.error(`[EyeJS] unkown type "${type}" in function .compute, possible values are "bounds" "style"`);
     }
+
+    /**
+     * Get specific client informations.
+     * @param {"width" | "height" | "left" | "top"} attr 
+     * @returns {EyeElement}
+     */
+    client(attr) {
+      if (['width', 'height', 'left', 'top'].includes(attr))
+        return (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw)[`client${attr[0].toUpperCase()}${attr.substring(1, attr.length)}`];
+      else console.error(`[EyeJS] Unknown client* attribute "${attr}" in .client(attr)`);
+      return this;
+    }
     /**
      * Activate/disactive different pointer features such as PointerLock, pointerCapture...
      * @method EyeElement#pointer
@@ -960,6 +998,13 @@
       return this;
     }
     /**
+     * Returns the count of children for this element
+     * @type {number}
+     */
+    get childlen() {
+      return (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw)?.children.length;
+    }
+    /**
      * Select a child of this element
      * @method EyeElement#child
      * @param {number} index 
@@ -968,7 +1013,7 @@
     child(index) {
       let it = (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw);
       if (index === undefined) return it.children.length;
-      if (it.children[index]) return eye(it.children[index]);
+      if (it.children[index]) return e(it.children[index]);
       return null;
     }
     /**
@@ -1048,7 +1093,7 @@
       let anmts = [];
       opts.duration = opts.duration || 1000;
       this.each((elm, i) => {
-        anmts.push(elm.#raw.animate(keyframes, opts));
+        anmts.push(elm.animate(keyframes, opts));
       });
       return anmts.length == 1 ? anmts[0] : anmts;
     }
@@ -1060,7 +1105,7 @@
    * @param {Object} css CSS styles to be applied to the element.
    * @returns {EyeElement}
    */
-  function eye(tag, attrs, css) {
+  function e(tag, attrs, css) {
     if (typeof tag === "string" && tag.indexOf("model:") === 0 || tag === "model") {
       if (!attrs) return console.error("[EyeJS] Model creation requires parameter 'attr' as prototype, none delivered!");
 
@@ -1069,7 +1114,7 @@
       if (tag[1])
         cls = cls.concat(tag[1].split(" ").filter(a => a != ""));
       // creating a model
-      let model = eye("<div>", {
+      let model = e("<div>", {
         class: cls.join(" "),
       });
 
@@ -1080,7 +1125,7 @@
        * @returns {ModelEyeElement}
        */
       return (attrs) => {
-        let copy = eye(model.clone(attrs?.parent));
+        let copy = e(model.clone(attrs?.parent));
         // define & attach the refresh function
         copy.refresh = function (attrs = {}) {
           let def = attrs.default === false ? false : true;
@@ -1097,9 +1142,13 @@
 
 
   // gloablly exposed
-  window.eye = eye;
+  window.e = e;
+  window.EyeElement = EyeElement;
 
-  return eye;
+  exports.EyeElement = EyeElement;
+  exports.default = e;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
 
 }));
 //# sourceMappingURL=eye.umd.js.map

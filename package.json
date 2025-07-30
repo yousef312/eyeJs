@@ -1,5 +1,5 @@
 {
-  "name": "eyeejs",
+  "name": "eyjs",
   "version": "5.0.0",
   "description": "Library that make document manipulation a lot easier",
   "main": "./src/eye.js",

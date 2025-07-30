@@ -1,5 +1,5 @@
 # Eye.js
-Fasten your production and unleash the power of `eye`, manipulate DOM elements with ease while keeping your code organized and well readable.
+Fasten your production and unleash the power of `eye` or `e`, manipulate DOM elements with ease while keeping your code organized and well readable.
 
 yeap that's me! [@yousef_neji](https://github.com/yousef312)
 
@@ -13,27 +13,27 @@ Import first
 
 ```JavaScript
 // commonjs
-var eye = require('eye');
+var e = require('eyjs');
 
 // ESM
-import eye from "eye";
+import e from "eyjs";
 ```
 
 Selecting an element
 ```JavaScript
 // div id="bar"
-let bar = eye("div#bar");
+let bar = e("div#bar");
 // all spans with class="list-item"
-let listItem = eye("span.list-item");
+let listItem = e("span.list-item");
 // all elements with class ".fools"
-let fools = eye(".fools");
+let fools = e(".fools");
 // using ! only return the first occurence
-let firstButton = eye(".btns!");
+let firstButton = e(".btns!");
 ```
 
 Creating elements
 ```JavaScript
-let baron = eye("<div>",{
+let baron = e("<div>",{
         text: "leave",
         parent: bar,
         class: "btn button_dark", // also accepts array for multiple class setting at once or string concatenation of them with spaces between
@@ -60,13 +60,16 @@ baron
 
 baron.attr("contentEditable","true"); // manipulating atributes
 baron.attr("style",false); // `false` will remove the attribute `style`
+baron.rAttr("style"); // or you could simply use rAttr
 baron.attr("data-index"); // setting or getting dataset values
 
 baron.on("click",cb); // events handling
 baron.click(cb); // triggering or handling events
 
 baron.child(0); // getting child number 0
-baron.child(); // getting children length
+baron.childlen // getting children length
+
+baron.client("width") // get client specific informations "width" "height" "left" or "top"
 ```
 
 ## Redefine set/get features of .text and .val
@@ -74,7 +77,7 @@ baron.child(); // getting children length
 You can modify the way you use `.text` and `.val` using `.redefine`
 
 ```JavaScript
-let customInp = eye('div',{ class: "custom-inp", parent: form });
+let customInp = e('div',{ class: "custom-inp", parent: form });
 
 customInp.redefine("text",(action, value, elm)=>{
     if(action == "set"){
@@ -110,7 +113,7 @@ The function will select all sub inputs, select, textarea elements and return th
 </form>
 ```
 ```javascript
-let form = eye('form.createUser');
+let form = e('form.createUser');
 
 let opts = {
     // optionally identify the inputs to serialize adding custom inputs
@@ -131,7 +134,7 @@ let data = form.serialize(opts);
 
 ## `~Models~`
 
- - **description**: models used to create elements similar to react components except easier to manager, you can create basic blueprint using `eye("model:youModelName", blueprint)`, later on, you use the returned constructor over and over when ever the need calls!
+ - **description**: models used to create elements similar to react components except easier to manager, you can create basic blueprint using `e("model:youModelName", blueprint)`, later on, you use the returned constructor over and over when ever the need calls!
  - **how it works**:
    - include the "model:\_model_name\_".
    - define your `blueprint`:
@@ -143,7 +146,7 @@ let data = form.serialize(opts);
         where `_index`(must contain the `_`) represent a datacell to display data later, and `default_value` will be set if no data passed.
  - **Usuage**:
  ```javascript
- let failMessage = eye("model:FailMessage", {
+ let failMessage = e("model:FailMessage", {
     "div.head": {
         "div.title: _title - Big Fancy Title": {},
         "div.close": {}
