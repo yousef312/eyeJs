@@ -624,7 +624,7 @@ class EyeElement {
         } else if (action[0] == "?") {
           out = elm.classList.contains(action.substring(1, action.length));
         } else if (action.indexOf("/") != -1) {
-          [v1, v2] = action.split("/");
+          let [v1, v2] = action.split("/");
           elm.classList.replace(v1, v2);
         } else {
           elm.classList.add(action.substring(1, action.length));

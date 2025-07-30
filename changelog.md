@@ -1,5 +1,15 @@
 # Changelog
 
+## [6.0.1] - 2025-07-30
+
+### Changed
+
+ - `EyeElement` is also exported to help you better document your code using VSDocs
+
+### Fixed
+
+ - using `.class("class1/class2")` shows error undefined variable v1 or v2, Fixed!
+
 ## [6.0.0] - 2025-07-30
 
 ### Changed
