@@ -1,5 +1,16 @@
 # Changelog
 
+## [6.0.1] - 2025-08-01
+
+
+### Changed
+
+ - Better documentation for `.find` function
+
+### Fixed
+
+ - when using `.class` to add simple class it trim the first character, Fixed 
+
 ## [6.0.0] - 2025-07-30
 
 ### Changed

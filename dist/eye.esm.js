@@ -623,7 +623,7 @@ class EyeElement {
           [v1, v2] = action.split("/");
           elm.classList.replace(v1, v2);
         } else {
-          elm.classList.add(action.substring(1, action.length));
+          elm.classList.add(action);
         }
       });
       if (out) return;
@@ -917,6 +917,7 @@ class EyeElement {
    * Find one or multiple child elements by `selector`
    * @method EyeElement#find
    * @param {string} selector  
+   * @returns {HTMLElement|Array<HTMLElement>}
    */
   find(selector) {
     let found = [];
