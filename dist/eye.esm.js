@@ -364,8 +364,9 @@ function cmcl(parent, layer) {
   return obj;
 }
 
-let delegationEvents = ["click", "submit", "input", "change", "keydown", "keyup", "keypress", "focusin", "focusout", "mouseover", "mouseout"];
+let delegationEvents = ["click", "dblclick", "submit", "input", "change", "keydown", "keyup", "keypress", "focusin", "focusout", "mousedown", "mouseup", "mousemove", "contextmenu", "auxclick", "wheel", "mouseover", "mouseout", "pointerdown", "pointerup", "pointermove", "pointerover", "pointerout", "gotpointercapture", "lostpointercapture", "pointercancel"];
 let normalSetterGetter = (action, v, elm) => v;
+window.addEventListener('point');
 
 /**
  * Eye wrapper offers a subset of functions that ease DOM minipulation! Power of JQuery with 
