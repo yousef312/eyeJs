@@ -1,5 +1,11 @@
 # Changelog
 
+## [6.1.0] - 2025-08-17
+
+### Added
+
+ - new `position` function, to find element position within parent element
+
 ## [6.0.2] - 2025-08-01
 
 ### Changed

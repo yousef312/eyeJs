@@ -689,12 +689,12 @@ class EyeElement {
           this.#raw.before(...nodes);
           break;
         case "afterbegin":
-          case "first":
-            this.#raw.prepend(...nodes);
-            break;
+        case "first":
+          this.#raw.prepend(...nodes);
+          break;
         case "beforeend":
-          case "last":
-            this.#raw.append(...nodes);
+        case "last":
+          this.#raw.append(...nodes);
 
       }
     return this;
@@ -1091,6 +1091,23 @@ class EyeElement {
       anmts.push(elm.animate(keyframes, opts));
     });
     return anmts.length == 1 ? anmts[0] : anmts;
+  }
+
+  /**
+   * Find element/s position/s within parent element
+   * @method EyeElement#position
+   * @returns {number}
+   */
+  position() {
+    let poses = [];
+    this.each((elm) => {
+      for (let i = 0; i < elm.parentNode.children.length; i++) {
+        const child = elm.parentNode.children[i];
+        if (elm.isSameNode(child)) poses.push(i);
+      }
+
+    });
+    return poses.length == 0 ? poses[0] : poses;
   }
 }
 /**
