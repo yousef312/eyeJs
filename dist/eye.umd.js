@@ -513,10 +513,29 @@
      * @returns {EyeElement}
      */
     each(cb) {
-      (this.#raw instanceof NodeList ? [...this.#raw.entries()] : [[0, this.#raw]]).forEach(([idx, elm]) => {
-        cb(elm, idx, this);
-      });
+      let list = (this.#raw instanceof NodeList ? [...this.#raw.entries()] : [[0, this.#raw]]);
+      for (let i = 0; i < list.length; i++) {
+        const [idx, elm] = list[i];
+        let exit = cb(elm, idx, this);
+        if (exit === false) break;
+      }
       return this;
+    }
+    /**
+     * Run(loop) through selected NodeList's children.
+     * @param {(elm: HTMLElement, index: number, parent: HTMLElement, Object: EyeElement)=>{}} cb 
+     * @returns {EyeElement}
+     */
+    eachChild(cb) {
+      let _this = this;
+      return this.each(function (elm, i, parent) {
+        let exit = true;
+        for (let j = 0; j < elm.children.length; j++) {
+          exit = cb(elm.children[j], j, elm, _this);
+          if (exit === false) break;
+        }
+        if (exit === false) return;
+      })
     }
     /**
      * Set or get element html
