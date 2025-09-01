@@ -1,5 +1,15 @@
 # Changelog
 
+## [7.0.0] - 2025-09-01
+
+### Changed
+
+ - the function now may return null for not found selectors, instead of empty eye element.
+
+### Added
+
+ - new param `clone` in `.parent` function that allows you to append a clone of the element!
+
 ## [6.1.2] - 2025-08-17
 
 ### Changed

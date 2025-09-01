@@ -751,17 +751,18 @@
     /**
      * Get current element parent or append it to one
      * @method EyeElement#parent
-     * @param {HTMLElement|EyeElement} par
+     * @param {HTMLElement|EyeElement} parent
+     * @param {boolean} clone [true] append clones of the elements
      * @returns {EyeElement}
      */
-    parent(par) {
-      if (par) {
-        if (!(par instanceof HTMLElement) && !(par instanceof EyeElement))
+    parent(parent, clone) {
+      if (parent) {
+        if (!(parent instanceof HTMLElement) && !(parent instanceof EyeElement))
           throw new Error(
             "[EyeJS] Unable to append current element to parent because it's not HTMLElement"
           );
-        this.each((elm, idx) => {
-          par.append(elm);
+        this.each(elm => {
+          parent.append(clone === true ? elm.cloneNode(true) : elm);
         });
         return this;
       }
@@ -1155,7 +1156,10 @@
         };
         return copy.refresh(attrs);
       };
-    } else return new EyeElement(tag, attrs, css);
+    } else {
+      let ne = new EyeElement(tag, attrs, css);
+      return ne.length === 0 ? null : ne;
+    }
   }
 
 
