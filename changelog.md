@@ -10,6 +10,16 @@
 
  - new param `clone` in `.parent` function that allows you to append a clone of the element!
 
+## [6.2.0] - 2025-08-25
+
+### Changed
+
+ - `.each` function can be interrupted from inside by returning false in the function.
+
+### Added
+
+ - new `.eachChild` function to loop through selected elements children, also can be interupted by returning false.
+
 ## [6.1.2] - 2025-08-17
 
 ### Changed
