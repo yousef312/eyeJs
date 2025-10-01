@@ -14,6 +14,11 @@
    * @property {String} html - set element html
    */
 
+  const unitlessProps = new Set([
+    "opacity", "zIndex", "fontWeight", "lineHeight",
+    "flex", "flexGrow", "flexShrink", "order"
+  ]);
+
   /**
    * Returns the associated class event of that event
    * example: for click event it returns new MouseEvent("click")
@@ -381,7 +386,7 @@
   class EyeElement {
     /**
      * Raw html element
-     * @type {HTMLElement}
+     * @type {Array<HTMLElement>}
      */
     #raw = null;
 
@@ -412,17 +417,14 @@
     constructor(selector, attrs, css) {
       let _this = this;
       if (selector instanceof HTMLElement) {
-        this.#raw = selector;
+        this.#raw = [selector];
       } else if (htmlElements.includes(selector)) {
         // creating a new element
-        this.#raw = document.createElement(selector.substring(1, selector.length - 1));
+        this.#raw = [document.createElement(selector.substring(1, selector.length - 1))];
       } else {
         // selecting
         let s = selector.slice(-1) === "!";
-        this.#raw = document.querySelectorAll(s ? selector.slice(0, -1) : selector);
-
-        if (this.#raw.length == 0) return null; // we stop everything here
-        if (this.length == 1 || s) this.#raw = this.#raw.item(0);
+        this.#raw = [...document.querySelectorAll(s ? selector.slice(0, -1) : selector)];
       }
 
       /**
@@ -486,7 +488,6 @@
         };
       });
 
-
       return this;
     }
 
@@ -495,7 +496,7 @@
      * @type {Number}
      */
     get length() {
-      return this.#raw instanceof NodeList ? this.#raw.length : 1;
+      return this.#raw.length;
     }
 
     /**
@@ -513,10 +514,9 @@
      * @returns {EyeElement}
      */
     each(cb) {
-      let list = (this.#raw instanceof NodeList ? [...this.#raw.entries()] : [[0, this.#raw]]);
-      for (let i = 0; i < list.length; i++) {
-        const [idx, elm] = list[i];
-        let exit = cb(elm, idx, this);
+      for (let i = 0; i < this.#raw.length; i++) {
+        const elm = this.#raw[i];
+        let exit = cb(elm, i, this);
         if (exit === false) break;
       }
       return this;
@@ -682,46 +682,39 @@
       return this;
     }
     /**
-     * Append one or more elements to the current element
+     * Append one or more elements to the current element, only effect the first element in the selected list
      * @method EyeElement#append
      * @param {HTMLElement|Array<Node|EyeElement>} elm
      * @param {"next" | "after" | "previous" | "before" | "first" | "afterbegin" | "last" | "beforeend"} [pos] [optional]
      * @returns {EyeElement}
      */
     append(elm, pos) {
-      let nodes = [];
       (Array.isArray(elm) ? elm : [elm]).forEach(item => {
-        if (item instanceof EyeElement) nodes.push(item.#raw);
-        else if (item instanceof HTMLElement) nodes.push(item);
-      });
-      if (this.#raw instanceof NodeList) {
-        console.warn(`[EyeJS] beware while using .append with multi selected elements`);
-        this.#raw.forEach((itm, idx) => {
-          if (!nodes[idx]) return;
-          itm.append(nodes[idx]);
-        });
-        return this;
-      }
-      if (!pos) this.#raw.append(...nodes);
-      else
-        switch (pos) {
-          case "next":
-          case "after":
-            this.#raw.after(...nodes);
-            break;
-          case "previous":
-          case "before":
-            this.#raw.before(...nodes);
-            break;
-          case "afterbegin":
-          case "first":
-            this.#raw.prepend(...nodes);
-            break;
-          case "beforeend":
-          case "last":
-            this.#raw.append(...nodes);
+        let nodes = [];
+        if (item instanceof EyeElement) nodes = [...item.raw];
+        else if (item instanceof HTMLElement) nodes = [item];
 
-        }
+        nodes.forEach(node => {
+          switch (pos) {
+            case "next":
+            case "after":
+              this.#raw[0].after(node);
+              break;
+            case "previous":
+            case "before":
+              this.#raw[0].before(node);
+              break;
+            case "afterbegin":
+            case "first":
+              this.#raw[0].prepend(node);
+              break;
+            case "beforeend":
+            case "last":
+            default:
+              this.#raw[0].append(node);
+          }
+        });
+      });
       return this;
     }
     /**
@@ -731,7 +724,7 @@
      * @returns {EyeElement}
      */
     after(elm) {
-      (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw).after(elm instanceof EyeElement ? elm.raw : elm);
+      this.#raw[0].after(elm instanceof EyeElement ? elm.raw : elm);
       return this;
     }
     /**
@@ -741,7 +734,7 @@
      * @returns {EyeElement}
      */
     before(elm) {
-      (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw).before(elm instanceof EyeElement ? elm.raw : elm);
+      this.#raw[0].before(elm instanceof EyeElement ? elm.raw : elm);
       return this;
     }
     /**
@@ -754,17 +747,10 @@
     replaceWith(...elms) {
       let nodes = [];
       (Array.isArray(elms) ? elms : [elms]).forEach(item => {
-        if (item instanceof EyeElement) nodes.push(item.#raw);
+        if (item instanceof EyeElement) nodes = nodes.concat(...item.raw);
         else if (item instanceof HTMLElement) nodes.push(item);
       });
-      if (this.#raw instanceof NodeList) {
-        [...this.#raw.entries()].forEach(([idx, elm]) => {
-          if (!nodes[idx]) return;
-          elm.replaceWith(nodes[idx]);
-        });
-      } else {
-        this.#raw.replaceWith(...nodes);
-      }
+      this.#raw[0].replaceWith(...nodes);
       return this;
     }
     /**
@@ -785,27 +771,23 @@
         });
         return this;
       }
-      return e(this.#raw instanceof NodeList ? this.#raw.item(0).parentElement : this.#raw.parentElement);
+      return e(this.#raw[0].parentElement);
     }
     /**
-     * Returns whether current node is the same/equal(depending on `check`) as the passed node or not
+     * Returns whether current node is the same/equal (depending on `check`) as the passed node or not
      * @method EyeElement#is
      * @param {HTMLElement|EyeElement} node
      * @param {"connected" | "same" | "equal"} [check] check type `same`, `equal`
      * @returns {boolean}
      */
     is(node, check) {
-      node = node instanceof EyeElement ? node.#raw : node;
-      if (this.#raw instanceof NodeList) {
-        console.warn(`[EyeJS] .is is not functional with multi selected elements`);
-        return this;
-      }
-      if (node === "connected") return this.#raw.isConnected;
+      node = node instanceof EyeElement ? node.#raw[0] : node;
+      if (node === "connected") return this.#raw[0].isConnected;
       switch (check) {
         case "same":
-          return this.#raw.isSameNode(node);
+          return this.#raw[0].isSameNode(node);
         case "equal":
-          return this.#raw.isEqualNode(node);
+          return this.#raw[0].isEqualNode(node);
         default:
           console.error(
             `[EyeJS] Unknown check "${check}", possible values are ["same","equal","connected"]`
@@ -822,6 +804,7 @@
      */
     css(attr, value) {
       if (attr) {
+        if (!unitlessProps.has(attr) && typeof value === "number" && value != 0) value = `${value}px`;
         let out = undefined;
         attr = flat(attr);
         this.each((elm, idx) => {
@@ -829,7 +812,7 @@
           elm.style[attr] = value;
         });
         return out != undefined ? out : this;
-      } else return console.error(`[EyeJS] mission argument "attr" in function .css`);
+      } else return console.error(`[EyeJS] missing argument "attr" in function .css`);
     }
     /**
      * Remove current element
@@ -872,8 +855,6 @@
           "[EyeJS] .on method is missing the actuall callback `cb` or not of type function"
         );
 
-      let elms = (this.#raw instanceof NodeList ? [...this.#raw.entries()] : [[0, this.#raw]]);
-
       let outsider = null;
       ev.forEach(evt => {
         if (target) {
@@ -884,7 +865,7 @@
             _this.#dlgListeners.set(evt, new Set());
           _this.#dlgListeners.get(evt).add({ callback: cb, target });
         } else {
-          elms.forEach(([idx, elm]) => {
+          _this.each((elm) => {
             elm.addEventListener(evt, cb);
           });
         }
@@ -956,21 +937,15 @@
      * Returns a clone of current selected element/s
      * @method EyeElement#clone
      * @param {HTMLElement} [parent] optionally append new clone to a parent
-     * @returns {Array<EyeElement>|EyeElement}
+     * @returns {Array<EyeElement>}
      */
     clone(parent) {
-      if (this.#raw instanceof NodeList) {
-        let list = [];
-        this.#raw.forEach(nd => {
-          list.push(nd.cloneNode(true));
-        });
-        if (parent instanceof HTMLElement || parent instanceof EyeElement) list.forEach(el => parent.append(el));
-        return list;
-      } else {
-        let clone = this.#raw.cloneNode(true);
-        if (parent instanceof HTMLElement || parent instanceof EyeElement) parent.append(clone);
-        return clone;
-      }
+      let list = [];
+      this.each((nd) => {
+        list.push(nd.cloneNode(true));
+      });
+      if (parent instanceof HTMLElement || parent instanceof EyeElement) list.forEach(el => parent.append(el));
+      return list;
     }
     /**
      * Compute DOMRect or style declaration of current element
@@ -981,10 +956,10 @@
     compute(type) {
       type = type || "bounds";
       if (type === "bounds")
-        return (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw).getBoundingClientRect();
+        return (this.#raw[0]).getBoundingClientRect();
       else if (type == "style")
-        return getComputedStyle(this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw)
-      console.error(`[EyeJS] unkown type "${type}" in function .compute, possible values are "bounds" "style"`);
+        return getComputedStyle(this.#raw[0])
+      console.error(`[EyeJS] unknown type "${type}" in function .compute, possible values are "bounds" "style"`);
     }
 
     /**
@@ -994,7 +969,7 @@
      */
     client(attr) {
       if (['width', 'height', 'left', 'top'].includes(attr))
-        return (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw)[`client${attr[0].toUpperCase()}${attr.substring(1, attr.length)}`];
+        return this.#raw[0][`client${attr[0].toUpperCase()}${attr.substring(1, attr.length)}`];
       else console.error(`[EyeJS] Unknown client* attribute "${attr}" in .client(attr)`);
       return this;
     }
@@ -1032,9 +1007,8 @@
      * @returns {EyeElement|null}
      */
     child(index) {
-      let it = (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw);
-      if (index === undefined) return it.children.length;
-      if (it.children[index]) return e(it.children[index]);
+      if (index === undefined) return this.#raw[0].children.length;
+      if (this.#raw[0].children[index]) return e(this.#raw[0].children[index]);
       return null;
     }
     /**
@@ -1044,11 +1018,8 @@
      * @returns 
      */
     val(value) {
-      if (value != undefined) (this.#raw instanceof NodeList ? [...this.#raw.entries()] : [[0, this.#raw]]).forEach(([idx, a]) => a.value = this.#customSet.value("set", value, a));
-      else {
-        let it = (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw);
-        return this.#customSet.value("get", it.value, it);
-      }
+      if (value != undefined) this.each((a) => a.value = this.#customSet.value("set", value, a));
+      else return this.#customSet.value("get", this.#raw[0].value, this.#raw[0]);
       return this;
     }
     /**
@@ -1062,31 +1033,29 @@
       let {
         inputs = ["input", "textarea", "select"],
       } = opts;
-      if (this.#raw instanceof HTMLElement) {
-        let out = {
-          json: {},
-          url: "",
-          fd: new FormData()
-        };
-        this.#raw.querySelectorAll(inputs.join(','))
-          .forEach((inp, i) => {
-            let name = inp.name || inp.dataset.name;
-            let value = inp.value || inp.textContent;
-            if (typeof opts[name] === "function") value = opts[name](inp);
+      let out = {
+        json: {},
+        url: "",
+        fd: new FormData()
+      };
+      this.#raw[0].querySelectorAll(inputs.join(','))
+        .forEach((inp, i) => {
+          let name = inp.name || inp.dataset.name;
+          let value = inp.value || inp.textContent;
+          if (typeof opts[name] === "function") value = opts[name](inp);
 
-            if (inp.type == "file")
-              inp.files.forEach(file => {
-                out.fd.append(name, file);
-              });
-            else {
-              out.json[name] = value;
-              out.fd.append(name, value);
-            }
-          });
+          if (inp.type == "file")
+            inp.files.forEach(file => {
+              out.fd.append(name, file);
+            });
+          else {
+            out.json[name] = value;
+            out.fd.append(name, value);
+          }
+        });
 
-        out.url = new URLSearchParams(out.json).toString();
-        return out;
-      } else console.warn(`[EyeJS] this is a multi selection, it's not serializable!`);
+      out.url = new URLSearchParams(out.json).toString();
+      return out;
     }
     /**
      * Redefine the way `.text` or `.val` set or get data to and from this element.
@@ -1120,20 +1089,20 @@
     }
 
     /**
-     * Find element/s position/s within parent element
+     * Find first element position within parent element
      * @method EyeElement#position
      * @returns {number}
      */
     position() {
-      let poses = [];
-      this.each((elm) => {
-        for (let i = 0; i < elm.parentNode.children.length; i++) {
-          const child = elm.parentNode.children[i];
-          if (elm.isSameNode(child)) poses.push(i);
+      let pos = -1;
+      for (let i = 0; i < this.#raw[0].parentNode.children.length; i++) {
+        const child = this.#raw[0].parentNode.children[i];
+        if (this.#raw[0].isSameNode(child)) {
+          pos = i;
+          break;
         }
-
-      });
-      return poses.length == 0 ? poses[0] : poses;
+      }
+      return pos;
     }
   }
   /**
@@ -1180,7 +1149,6 @@
       return ne.length === 0 ? null : ne;
     }
   }
-
 
   // gloablly exposed
   window.e = e;

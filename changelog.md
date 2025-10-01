@@ -1,5 +1,18 @@
 # Changelog
 
+## [7.1.0] - 2025-10-01
+
+### Changed
+
+ - `.append` function only affect first selected element, also fixed to accept multiple selected element using `e` function.
+ - functions now only affect first selected element in general.
+ - library had been re-structured better.
+
+### Added
+
+ - `e` our dear library now accepts arrays of elements like `e([HTMLDivElement, HTMLSpanElement, HTMLInputElement...])`
+ - `.css` function may accept only numbers for properties such as `width` `height` `left` `top`...
+
 ## [7.0.0] - 2025-09-01
 
 ### Changed
