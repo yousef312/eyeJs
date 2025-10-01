@@ -421,6 +421,12 @@
       } else if (htmlElements.includes(selector)) {
         // creating a new element
         this.#raw = [document.createElement(selector.substring(1, selector.length - 1))];
+      } else if (Array.isArray(selector)) {
+        this.#raw = [];
+        selector.forEach((a) => {
+          if (a instanceof EyeElement) _this.#raw = _this.#raw.concat(...a.raw);
+          else if (a instanceof HTMLElement) _this.#raw.push(a);
+        });
       } else {
         // selecting
         let s = selector.slice(-1) === "!";
