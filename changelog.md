@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.1.2] - 2025-10-07
+
+### Fixed
+
+ - `.childlen` attribute not working.
+
 ## [7.1.1] - 2025-10-01
 
 ### Changed

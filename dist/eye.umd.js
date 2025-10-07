@@ -1004,7 +1004,7 @@
      * @type {number}
      */
     get childlen() {
-      return (this.#raw instanceof NodeList ? this.#raw.item(0) : this.#raw)?.children.length;
+      return this.#raw[0].children.length;
     }
     /**
      * Select a child of this element
