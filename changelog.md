@@ -1,10 +1,11 @@
 # Changelog
 
-## [7.1.2] - 2025-10-07
+## [7.1.3] - 2025-10-07
 
 ### Fixed
 
- - `.childlen` attribute not working.
+ - `.childlen` attribute not working, fixed.
+ - `.after` `.before` functions don't work with EyeElement, fixed.
 
 ## [7.1.1] - 2025-10-01
 

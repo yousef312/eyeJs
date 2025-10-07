@@ -728,7 +728,7 @@ class EyeElement {
    * @returns {EyeElement}
    */
   after(elm) {
-    this.#raw[0].after(elm instanceof EyeElement ? elm.raw : elm);
+    this.#raw[0].after(elm instanceof EyeElement ? elm.raw[0] : elm);
     return this;
   }
   /**
@@ -738,7 +738,7 @@ class EyeElement {
    * @returns {EyeElement}
    */
   before(elm) {
-    this.#raw[0].before(elm instanceof EyeElement ? elm.raw : elm);
+    this.#raw[0].before(elm instanceof EyeElement ? elm.raw[0] : elm);
     return this;
   }
   /**
