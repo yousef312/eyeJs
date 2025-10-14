@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.1.4] - 2025-10-14
+
+### Fixed
+
+ - some properties inside `attr` are not being applied.
+ 
 ## [7.1.3] - 2025-10-07
 
 ### Fixed

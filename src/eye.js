@@ -463,7 +463,7 @@ export class EyeElement {
           else if (key == "data") for (const k in value) elm.dataset[k] = value[k];
           else if (key == "parent") parentElm = value;
           else if (key in elm) elm[key] = value;
-          else if (key[0] != "_") elm.setAttribute(key, elm); // we must ignore _ started keys 'cause they are used by models
+          else if (key[0] != "_") elm.setAttribute(key, value); // we must ignore _ started keys 'cause they are used by models
         }
       if (css)
         for (const key in css)
