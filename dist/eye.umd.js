@@ -727,24 +727,26 @@
      * Insert element after this one, or return the one lies there
      * @method EyeElement#after
      * @param {EyeElement|HTMLElement} elm 
+     * @param {AttrMap} attr
      * @returns {EyeElement|HTMLElement}
      */
-    after(elm) {
+    after(elm, attr) {
       if (elm)
         this.#raw[0].after(elm instanceof EyeElement ? elm.raw[0] : elm);
-      else return this.#raw[0].nextElementSibling;
+      else return this.#raw[0].nextElementSibling ? e(this.#raw[0].nextElementSibling, attr) : null;
       return this;
     }
     /**
      * Insert element before this one, or return the one lies there
      * @method EyeElement#before
      * @param {EyeElement|HTMLElement} elm 
+     * @param {AttrMap} attr
      * @returns {EyeElement|HTMLElement}
      */
-    before(elm) {
+    before(elm, attr) {
       if (elm)
         this.#raw[0].before(elm instanceof EyeElement ? elm.raw[0] : elm);
-      else return this.#raw[0].previousElementSibling;
+      else return this.#raw[0].previousElementSibling ? e(this.#raw[0].previousElementSibling, attr) : null
       return this;
     }
     /**

@@ -1,6 +1,6 @@
 # Changelog
 
-## [7.1.5] - 2025-11-06
+## [7.1.6] - 2025-11-06
 ### Added
  - `.after` and `.before` now either append or return the element lies after/next or before/previous.
 
