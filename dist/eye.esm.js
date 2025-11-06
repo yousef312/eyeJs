@@ -720,27 +720,25 @@ class EyeElement {
   /**
    * Insert element after this one, or return the one lies there
    * @method EyeElement#after
-   * @param {EyeElement|HTMLElement} elm 
-   * @param {AttrMap} attr
+   * @param {EyeElement|HTMLElement|AttrMap} elm 
    * @returns {EyeElement|HTMLElement}
    */
-  after(elm, attr) {
-    if (elm)
+  after(elm) {
+    if (elm instanceof HTMLElement || elm instanceof EyeElement || elm instanceof Node)
       this.#raw[0].after(elm instanceof EyeElement ? elm.raw[0] : elm);
-    else return this.#raw[0].nextElementSibling ? e(this.#raw[0].nextElementSibling, attr) : null;
+    else return this.#raw[0].nextElementSibling ? e(this.#raw[0].nextElementSibling, elm) : null;
     return this;
   }
   /**
    * Insert element before this one, or return the one lies there
    * @method EyeElement#before
-   * @param {EyeElement|HTMLElement} elm 
-   * @param {AttrMap} attr
+   * @param {EyeElement|HTMLElement|AttrMap} elm 
    * @returns {EyeElement|HTMLElement}
    */
-  before(elm, attr) {
-    if (elm)
+  before(elm) {
+    if (elm instanceof HTMLElement || elm instanceof EyeElement || elm instanceof Node)
       this.#raw[0].before(elm instanceof EyeElement ? elm.raw[0] : elm);
-    else return this.#raw[0].previousElementSibling ? e(this.#raw[0].previousElementSibling, attr) : null
+    else return this.#raw[0].previousElementSibling ? e(this.#raw[0].previousElementSibling, elm) : null
     return this;
   }
   /**
