@@ -718,23 +718,27 @@ class EyeElement {
     return this;
   }
   /**
-   * Insert element after this one
+   * Insert element after this one, or return the one lies there
    * @method EyeElement#after
    * @param {EyeElement|HTMLElement} elm 
-   * @returns {EyeElement}
+   * @returns {EyeElement|HTMLElement}
    */
   after(elm) {
-    this.#raw[0].after(elm instanceof EyeElement ? elm.raw[0] : elm);
+    if (elm)
+      this.#raw[0].after(elm instanceof EyeElement ? elm.raw[0] : elm);
+    else return this.#raw[0].nextElementSibling;
     return this;
   }
   /**
-   * Insert element before this one
+   * Insert element before this one, or return the one lies there
    * @method EyeElement#before
    * @param {EyeElement|HTMLElement} elm 
-   * @returns {EyeElement}
+   * @returns {EyeElement|HTMLElement}
    */
   before(elm) {
-    this.#raw[0].before(elm instanceof EyeElement ? elm.raw[0] : elm);
+    if (elm)
+      this.#raw[0].before(elm instanceof EyeElement ? elm.raw[0] : elm);
+    else return this.#raw[0].previousElementSibling;
     return this;
   }
   /**
