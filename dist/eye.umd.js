@@ -827,13 +827,17 @@
     /**
      * Remove current element, or find and remove a sub element of it
      * @method EyeElement#remove
-     * @param {string} selector
+     * @param {string?} selector
+     * @param {()=>void?} cb optionally execute something before removing the selected element
      * @returns {EyeElement}
      */
-    remove(selector) {
+    remove(selector, cb) {
       this.each((elm, idx) => {
         if (typeof selector === "string")
-          elm.querySelectorAll(selector).forEach(item => item.remove());
+          elm.querySelectorAll(selector).forEach(item => {
+            if (typeof cb === "function") cb(e(item));
+            item.remove();
+          });
         else elm.remove();
       });
       return this;
