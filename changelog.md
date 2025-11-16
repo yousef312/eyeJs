@@ -1,6 +1,6 @@
 # Changelog
 
-## [7.2.0] - 2025-11-16
+## [7.2.2] - 2025-11-16
 ### Added
  - `.trigger` now accepts either event name or actual Event Object!
  - `.getctx` for getting canvas context.
