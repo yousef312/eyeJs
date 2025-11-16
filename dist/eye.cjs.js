@@ -357,7 +357,7 @@ function cmcl(parent, layer) {
         name: _set_name,
         set(parent, value) {
           let elm = parent.find(`[data-value="${_set_name}"]`);
-          elm.textContent = value ?? _set_default;
+          if(elm) elm[0].textContent = value ?? _set_default;
         }
       });
     }
