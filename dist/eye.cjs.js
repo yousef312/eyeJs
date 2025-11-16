@@ -318,6 +318,8 @@ const htmlElements = [
   "<template>",
 ];
 
+const quickexec = ["click", "focus", "blur", "select", "submit", "reset"];
+
 function flat(word) {
   let n = "";
   for (let i = 0; i < word.length; i++) {
@@ -486,8 +488,9 @@ class EyeElement {
       _this[ev] = function (cb) {
         if (cb) {
           if (typeof cb == "function") _this.on(ev, cb);
-        } else _this.trigger(ev);
-
+        } else if (quickexec.includes(ev))
+          _this.each(elm => elm[ev]());
+        else  _this.trigger(ev);
         return _this;
       };
     });

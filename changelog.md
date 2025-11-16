@@ -1,6 +1,6 @@
 # Changelog
 
-## [7.2.5] - 2025-11-16
+## [7.2.6] - 2025-11-16
 ### Added
  - `.trigger` now accepts either event name or actual Event Object!
  - `.getctx` for getting canvas context.
@@ -8,6 +8,7 @@
 
 ### Fixed
  - `.find` returning sometimes Array sometimes Element make no sense! so now it only returns an array or null!
+ - `.click()` `.focus()` & `.blur()` and some other don't work! Fixed!
 
 ## [7.1.7] - 2025-11-06
 ### Added
