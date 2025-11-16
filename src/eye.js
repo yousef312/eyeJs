@@ -920,7 +920,7 @@ export class EyeElement {
    */
   trigger(ev) {
     this.each((elm, idx) => {
-      elm.dispatchEvent(getEvent(ev));
+      elm.dispatchEvent(ev instanceof Event ? ev : getEvent(ev));
     })
     return this;
   }
@@ -935,7 +935,7 @@ export class EyeElement {
     this.each((elm, idx) => {
       elm.querySelectorAll(selector).forEach(res => found.push(res));
     })
-    return found.length == 1 ? found[0] : found;
+    return found.length == 0 ? null : found;
   }
   /**
    * Returns a clone of current selected element/s
@@ -1107,6 +1107,19 @@ export class EyeElement {
       }
     }
     return pos;
+  }
+
+  /**
+   * Get drawing context for canvas
+   * @param {"2d"|"webgl"|"webgl2"|"bitmaprenderer"} contextId 
+   * @param {*} contextSettings 
+   * @returns {EyeElement}
+   */
+  getctx(contextId, contextSettings) {
+    this.each(d => {
+      if (getContext in d) d.getContext(contextId, contextSettings);
+    })
+    return this;
   }
 };
 

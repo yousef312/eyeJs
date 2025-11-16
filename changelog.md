@@ -1,5 +1,13 @@
 # Changelog
 
+## [7.2.0] - 2025-11-16
+### Added
+ - `.trigger` now accepts either event name or actual Event Object!
+ - `.getctx` for getting canvas context.
+
+### Fixed
+ - `.find` returning sometimes Array sometimes Element make no sense! so now it only returns an array or null!
+
 ## [7.1.7] - 2025-11-06
 ### Added
  - `.after` and `.before` now either append or return the element lies after/next or before/previous.
