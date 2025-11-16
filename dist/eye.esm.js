@@ -1113,12 +1113,11 @@ class EyeElement {
    * Get drawing context for canvas
    * @param {"2d"|"webgl"|"webgl2"|"bitmaprenderer"} contextId 
    * @param {*} contextSettings 
-   * @returns {EyeElement}
+   * @returns {EyeElement|CanvasRenderingContext2D}
    */
   getctx(contextId, contextSettings) {
-    this.each(d => {
-      if (typeof d.getContext == "function") d.getContext(contextId, contextSettings);
-    });
+    if (typeof this.#raw[0].getContext === "function")
+      return this.#raw[0].getContext(contextId, contextSettings);
     return this;
   }
 }
