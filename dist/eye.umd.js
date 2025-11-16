@@ -1123,7 +1123,7 @@
      */
     getctx(contextId, contextSettings) {
       this.each(d => {
-        if (getContext in d) d.getContext(contextId, contextSettings);
+        if (typeof d.getContext == "function") d.getContext(contextId, contextSettings);
       });
       return this;
     }
