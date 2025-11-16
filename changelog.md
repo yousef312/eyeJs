@@ -1,9 +1,10 @@
 # Changelog
 
-## [7.2.3] - 2025-11-16
+## [7.2.4] - 2025-11-16
 ### Added
  - `.trigger` now accepts either event name or actual Event Object!
  - `.getctx` for getting canvas context.
+ - `.remove` can directly find and remove a sub element!
 
 ### Fixed
  - `.find` returning sometimes Array sometimes Element make no sense! so now it only returns an array or null!

@@ -359,7 +359,7 @@
           name: _set_name,
           set(parent, value) {
             let elm = parent.find(`[data-value="${_set_name}"]`);
-            if(elm) elm[0].textContent = value ?? _set_default;
+            if (elm) elm[0].textContent = value ?? _set_default;
           }
         });
       }
@@ -825,13 +825,16 @@
       } else return console.error(`[EyeJS] missing argument "attr" in function .css`);
     }
     /**
-     * Remove current element
+     * Remove current element, or find and remove a sub element of it
      * @method EyeElement#remove
+     * @param {string} selector
      * @returns {EyeElement}
      */
-    remove() {
+    remove(selector) {
       this.each((elm, idx) => {
-        elm.remove();
+        if (typeof selector === "string")
+          elm.querySelectorAll(selector).forEach(item => item.remove());
+        else elm.remove();
       });
       return this;
     }
