@@ -122,7 +122,7 @@ let opts = {
         let v = [];
         // this will select the custom-input .list>span spans
         // get their values and push it into `v` array.
-        inp.find(".list>span",true).each(span => v.push(span.textContext));
+        e(inp.find(".list>span")).each(span => v.push(span.textContext));
         // then return the value as string by joining it using ','
         return v.join(',');
     }

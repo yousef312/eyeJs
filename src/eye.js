@@ -486,7 +486,7 @@ export class EyeElement {
           if (typeof cb == "function") _this.on(ev, cb);
         } else if (quickexec.includes(ev))
           _this.each(elm => elm[ev]());
-        else  _this.trigger(ev);
+        else _this.trigger(ev);
         return _this;
       }
     })
@@ -803,6 +803,20 @@ export class EyeElement {
     }
   }
   /**
+   * Cheap check for previous/next/child elements by selector
+   * @param {"next"|"previous"|string} desc 
+   * @returns {boolean}
+   */
+  has(selector) {
+    if (typeof selector === "string")
+      switch (selector) {
+        case "next": return this.#raw[0].nextElementSibling != null
+        case "previous": return this.#raw[0].previousElementSibling != null
+        default: return this.#raw[0].querySelector(selector) != null
+      }
+    else false
+  }
+  /**
    * Set or get a css attribute
    * @method EyeElement#css
    * @param {string} attr
@@ -935,15 +949,20 @@ export class EyeElement {
     return this;
   }
   /**
-   * Find one or multiple child elements by `selector`
+   * Find one or multiple child elements by `selector`, 
+   * and optionally execute a callback on the fly! 
    * @method EyeElement#find
    * @param {string} selector  
-   * @returns {HTMLElement|Array<HTMLElement>}
+   * @param {(elm: EyeElement, parent: EyeElement) => void} [cb]  
+   * @returns {Array<HTMLElement>}
    */
-  find(selector) {
+  find(selector, cb) {
     let found = [];
     this.each((elm, idx) => {
-      elm.querySelectorAll(selector).forEach(res => found.push(res));
+      elm.querySelectorAll(selector).forEach(res => {
+        if (typeof cb === "function") cb(e(res), e(elm))
+        found.push(res)
+      });
     })
     return found.length == 0 ? null : found;
   }
@@ -1171,7 +1190,7 @@ function e(tag, attrs, css) {
       };
       return copy.refresh(attrs);
     };
-  } else {
+  } else if (tag != null) {
     let ne = new EyeElement(tag, attrs, css);
     return ne.length === 0 ? null : ne;
   }

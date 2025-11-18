@@ -1,5 +1,13 @@
 # Changelog
 
+## [7.3.0] - 2025-11-18
+### Added
+ - introducing `.has` a cheap check for certain elements
+ 
+### Fixed
+ - Docs are enhanced for some methods
+ - Anti `null` procedure to avoids extra errors
+
 ## [7.2.6] - 2025-11-16
 ### Added
  - `.trigger` now accepts either event name or actual Event Object!
