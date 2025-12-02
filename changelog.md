@@ -1,6 +1,6 @@
 # Changelog
 
-## [8.0.0] - 2025-12-02
+## [8.0.1] - 2025-12-02
 ### Added
  - separate `.delegate` method that perform event delegation specific events handling
  - new `.once` method to add single-time-executable events!

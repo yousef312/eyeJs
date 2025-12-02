@@ -894,9 +894,9 @@
           if (!delegationEvents.includes(evt))
             return outsider = evt; // outsider events 
 
-          if (!_this.#dlgListeners.has(evt))
-            _this.#dlgListeners.set(evt, new Set());
-          _this.#dlgListeners.get(evt).add({ callback: cb, target });
+          if (!this.#dlgListeners.has(evt))
+            this.#dlgListeners.set(evt, new Set());
+          this.#dlgListeners.get(evt).add({ callback: cb, target });
         });
 
       if (outsider !== null)
