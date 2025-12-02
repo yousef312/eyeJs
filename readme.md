@@ -64,6 +64,7 @@ baron.rAttr("style"); // or you could simply use rAttr
 baron.attr("data-index"); // setting or getting dataset values
 
 baron.on("click",cb); // events handling
+baron.delegate("click",".body", cb); // events delegation
 baron.click(cb); // triggering or handling events
 
 baron.child(0); // getting child number 0

@@ -1,5 +1,13 @@
 # Changelog
 
+## [8.0.0] - 2025-12-02
+### Added
+ - separate `.delegate` method that perform event delegation specific events handling
+ - new `.once` method to add single-time-executable events!
+
+### Changed
+ - `.on` third parameter now accepts handler properties now!
+ 
 ## [7.3.0] - 2025-11-18
 ### Added
  - introducing `.has` a cheap check for certain elements

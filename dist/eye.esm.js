@@ -853,55 +853,56 @@ class EyeElement {
     return this;
   }
   /**
-   * @overload
-   * @param {string} ev
-   * @param {function} cb
-   */
-  /**
-   * @overload
-   * @param {string} ev
-   * @param {string} trg optionally define a target element for the event
-   * @param {function} cb
-   *
-   */
-  /**
    * Attach an listener/handler to specific event or events
    * @method EyeElement#on
    * @param {string} ev may contain multiple events separated by " "(space)
-   * @param {string|function} arg2 
-   * @param {function} [arg3]
+   * @param {()=>} cb 
+   * @param {{ passive: boolean, capture: boolean, once: boolean, signal: AbortSignal }} opts
    * @returns {EyeElement|void}
    */
-  on(ev, arg2, arg3) {
-    ev = ev.split(" ");
-    let target = typeof arg2 === "string" ? arg2 : null;
-    let cb = typeof arg2 === "function" ? arg2 : arg3;
-    let _this = this;
+  on(ev, cb, opts) {
     if (typeof cb !== "function")
       return console.error(
         "[EyeJS] .on method is missing the actuall callback `cb` or not of type function"
       );
 
+    ev.split(" ")
+      .forEach(evt => {
+        this.each((elm) => {
+          elm.addEventListener(evt, cb, opts);
+        });
+      });
+
+    return this;
+  }
+  /**
+   * Attach a delegatable event listener to the subelement of this one
+   * @param {string} ev
+   * @param {string} target
+   * @param {()=>} cb
+   */
+  delegate(ev, target, cb) {
     let outsider = null;
-    ev.forEach(evt => {
-      if (target) {
+    ev.split(" ")
+      .forEach(evt => {
         if (!delegationEvents.includes(evt))
           return outsider = evt; // outsider events 
 
         if (!_this.#dlgListeners.has(evt))
           _this.#dlgListeners.set(evt, new Set());
         _this.#dlgListeners.get(evt).add({ callback: cb, target });
-      } else {
-        _this.each((elm) => {
-          elm.addEventListener(evt, cb);
-        });
-      }
-    });
+      });
 
     if (outsider !== null)
-      return console.error(`[EyeJS] trying to use delegation for an inappropriate event "${outsider}"`);
-
-    return this;
+      return console.warn(`[EyeJS] trying to use delegation with an inappropriate event "${outsider}"`);
+  }
+  /**
+   * Attach a single time handler, that get auto-removed after first call
+   * @param {string} ev 
+   * @param {()=>} cb 
+   */
+  once(ev, cb) {
+    this.on(ev, cb, { once: true }); // simply
   }
   /**
    * Remove event listener of a specific event
