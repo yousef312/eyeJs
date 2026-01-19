@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.1.2] - 2026-01-19
+
+### Fixed
+
+- dependency fix!
+
 ## [8.1.1] - 2026-01-19
 
 ### Fixed

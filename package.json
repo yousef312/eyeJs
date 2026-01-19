@@ -1,6 +1,6 @@
 {
   "name": "eyjs",
-  "version": "8.1.1",
+  "version": "8.1.2",
   "description": "Library that make document manipulation a lot easier",
   "main": "./src/eye.js",
   "module": "dist/eye.esm.js",
@@ -48,8 +48,5 @@
     "@rollup/plugin-terser": "^0.4.4",
     "jcall": "^1.0.0",
     "rollup": "^4.43.0"
-  },
-  "dependencies": {
-    "eyeejs": "^2.0.1"
   }
 }
