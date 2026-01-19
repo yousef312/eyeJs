@@ -5,6 +5,13 @@
   "main": "./src/eye.js",
   "module": "dist/eye.esm.js",
   "browser": "dist/eye.umd.min.js",
+  "files": [
+    "dist/",
+    "src/",
+    "readme.md",
+    "changelog.md",
+    "package.json"
+  ],
   "exports": {
     "import": "./dist/eye.esm.js",
     "require": "./dist/eye.cjs.js"
