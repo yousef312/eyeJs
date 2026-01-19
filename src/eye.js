@@ -431,20 +431,21 @@ export class EyeElement {
 
     /**
      * Handler used to integrate delegation concept/algorithme
-     * @param {Event} e 
+     * @param {Event} ev
      */
-    function handler(e) {
-      let name = e.type,
+    function handler(ev) {
+      let name = ev.type,
         listeners = _this.#dlgListeners,
-        _etarget = e.target,
-        me = this; // refers to the element being listening to the event
+        _etarget = ev.target,
+        me = _this; // refers to the element being listening to the event
 
       if (listeners.has(name)) {
         let cbs = listeners.get(name);
         cbs?.forEach(({ callback, target }) => {
           if (_etarget.closest(target)) {
+            const targetElement = e(_etarget.closest(target));
             // we hitting the target
-            callback(e, me);
+            callback.call(_etarget.closest(target), ev, targetElement, me);
           }
         })
       }
@@ -547,12 +548,12 @@ export class EyeElement {
    * @returns {EyeElement|string}
    */
   html(html) {
-    let out = undefined;
+    let out = "";
     this.each((elm, idx) => {
       if (html === undefined) return out = elm.innerHTML;// getting the first one and exiting
       elm.innerHTML = html;
     })
-    return out != undefined ? out : this;
+    return html == undefined ? out : this;
   }
   /**
    * Set or get element text
@@ -561,12 +562,12 @@ export class EyeElement {
    * @returns {EyeElement|string}
    */
   text(text) {
-    let out = undefined;
+    let out = "";
     this.each((elm, idx) => {
       if (text === undefined) return out = this.#customSet.text("get", elm.textContent, elm);
       elm.textContent = this.#customSet.text("set", text, elm);
     })
-    return out != undefined ? out : this;
+    return text == undefined ? out : this;
   }
   /**
    * Set or get element's data values
@@ -592,7 +593,7 @@ export class EyeElement {
    * @returns {EyeElement|string}
    */
   attr(name, value) {
-    let out = "";
+    let out = null;
     this.each((elm, idx) => {
       if (name.indexOf("data-") === 0) {
         let [key, val] = name.split("-").map((a) => a.trim());
@@ -609,7 +610,7 @@ export class EyeElement {
         }
       }
     })
-    return out ? out : this;
+    return value == undefined ? out : this;
   }
   /**
    * Removing attribute of this element
@@ -826,13 +827,13 @@ export class EyeElement {
   css(attr, value) {
     if (attr) {
       if (!unitlessProps.has(attr) && typeof value === "number" && value != 0) value = `${value}px`;
-      let out = undefined;
+      let out = null;
       attr = flat(attr);
       this.each((elm, idx) => {
         if (value === undefined) return out = elm.style[attr];
         elm.style[attr] = value;
       })
-      return out != undefined ? out : this;
+      return value == undefined ? out : this;
     } else return console.error(`[EyeJS] missing argument "attr" in function .css`);
   }
   /**
@@ -880,7 +881,7 @@ export class EyeElement {
    * Attach a delegatable event listener to the subelement of this one
    * @param {string} ev
    * @param {string} target
-   * @param {()=>} cb
+   * @param {(ev: Event, target: EyeElement, self: EyeElement)=>} cb
    */
   delegate(ev, target, cb) {
     let outsider = null;
