@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.3.0] - 2026-01-20
+
+### Changed
+
+- `rAttr` may accept an array of attribute to remove at once
+
 ## [8.1.2] - 2026-01-19
 
 ### Fixed

@@ -613,14 +613,17 @@ export class EyeElement {
     return value == undefined ? out : this;
   }
   /**
-   * Removing attribute of this element
-   * @type {string} attrName
+   * Removes attribute/s of this element
+   * @param {string|string[]} attrName
    * @returns {EyeElement}
    */
   rAttr(attrName) {
     if (attrName) {
-      this.each((elm, idx) => {
-        elm.removeAttribute(attrName);
+      if (!Array.isArray(attrName)) attrName = [attrName];
+      this.each(elm => {
+        attrName.forEach(attr => {
+          elm.removeAttribute(attr);
+        })
       })
     }
     return this;
