@@ -1195,9 +1195,24 @@ function e(tag, attrs, css) {
   }
 }
 
+/**
+ * Similar to `e` yet more condition based, the callback will only execute
+ * if selector was found within the DOM.
+ * @param {string} selector
+ * @param {(elm: EyeElement)=>void} callback
+ * @return {boolean} whether selector found and callback execute successfuly or not
+ */
+function _ife(selector, callback) {
+  const elm = e(selector);
+  if (elm) {
+    callback.call(elm, elm);
+    return true;
+  } else return false
+}
+
 // gloablly exposed
 window.e = e;
 window.EyeElement = EyeElement;
 
-export { EyeElement, e as default };
+export { EyeElement, _ife, e as default };
 //# sourceMappingURL=eye.esm.js.map

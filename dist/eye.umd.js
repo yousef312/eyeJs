@@ -1201,11 +1201,27 @@
     }
   }
 
+  /**
+   * Similar to `e` yet more condition based, the callback will only execute
+   * if selector was found within the DOM.
+   * @param {string} selector
+   * @param {(elm: EyeElement)=>void} callback
+   * @return {boolean} whether selector found and callback execute successfuly or not
+   */
+  function _ife(selector, callback) {
+    const elm = e(selector);
+    if (elm) {
+      callback.call(elm, elm);
+      return true;
+    } else return false
+  }
+
   // gloablly exposed
   window.e = e;
   window.EyeElement = EyeElement;
 
   exports.EyeElement = EyeElement;
+  exports._ife = _ife;
   exports.default = e;
 
   Object.defineProperty(exports, '__esModule', { value: true });

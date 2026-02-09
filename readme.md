@@ -1,4 +1,5 @@
 # Eye.js
+
 Fasten your production and unleash the power of `eye` or `e`, manipulate DOM elements with ease while keeping your code organized and well readable.
 
 yeap that's me! [@yousef_neji](https://github.com/yousef312)
@@ -9,6 +10,7 @@ Check changelog for more informations
 [check](/changelog.md)
 
 ## How to?
+
 Import first
 
 ```JavaScript
@@ -20,6 +22,7 @@ import e from "eyjs";
 ```
 
 Selecting an element
+
 ```JavaScript
 // div id="bar"
 let bar = e("div#bar");
@@ -32,6 +35,7 @@ let firstButton = e(".btns!");
 ```
 
 Creating elements
+
 ```JavaScript
 let baron = e("<div>",{
         text: "leave",
@@ -48,6 +52,7 @@ let baron = e("<div>",{
 ```
 
 Extra functionalities
+
 ```JavaScript
 // the most amazing functionalities is that u can chain calls
 baron
@@ -92,12 +97,13 @@ customInp.redefine("text",(action, value, elm)=>{
 ## Serializing form elements fn `.serialize`( param : opts )
 
 Serializing is transcoding form inputs data into an appropriate string format that you can send over the network to the server.
- 
+
 The function will select all sub inputs, select, textarea elements and return their values, in order to narrow the selection you can pre-define the inputs you want to select in `opts.inputs`, which also offers `custom-input` & `custom-getter` as follow:
- - `custom-inputs`: When your form contains custom inputs(div with special input features for example), you define them in the `opts.inputs` by a selector like `.special-input`, `#specialinp`... etc.
- - `custom-getters`: the naming convention is only for explainatory purpose, this feature basically nameless, It's the ability to provide a custom way to subtract the data of certain input/custom, by defining a function with the name of that input/custom, here's how u do it:
-   - `opts.[fieldname]`: (inp) => inp.child(0).val();
- 
+
+- `custom-inputs`: When your form contains custom inputs(div with special input features for example), you define them in the `opts.inputs` by a selector like `.special-input`, `#specialinp`... etc.
+- `custom-getters`: the naming convention is only for explainatory purpose, this feature basically nameless, It's the ability to provide a custom way to subtract the data of certain input/custom, by defining a function with the name of that input/custom, here's how u do it:
+  - `opts.[fieldname]`: (inp) => inp.child(0).val();
+
 ```html
 <form class="createUser">
     <input type="text" name="username">
@@ -113,6 +119,7 @@ The function will select all sub inputs, select, textarea elements and return th
     <button>submit</button>
 </form>
 ```
+
 ```javascript
 let form = e('form.createUser');
 
@@ -135,17 +142,18 @@ let data = form.serialize(opts);
 
 ## `~Models~`
 
- - **description**: models used to create elements similar to react components except easier to manager, you can create basic blueprint using `e("model:youModelName", blueprint)`, later on, you use the returned constructor over and over when ever the need calls!
- - **how it works**:
-   - include the "model:\_model_name\_".
-   - define your `blueprint`:
-     - a `blueprint` is an object containing nested objects that defines each component of your model,
-     - a `blueprint` element is formed by 
-     
-        [`tagname`.`classname1`.`classname2`: `_index - default_value`], 
+- **description**: models used to create elements similar to react components except easier to manager, you can create basic blueprint using `e("model:youModelName", blueprint)`, later on, you use the returned constructor over and over when ever the need calls!
+- **how it works**:
+  - include the "model:\_model_name\_".
+  - define your `blueprint`:
+    - a `blueprint` is an object containing nested objects that defines each component of your model,
+    - a `blueprint` element is formed by
+
+        [`tagname`.`classname1`.`classname2`: `_index - default_value`],
 
         where `_index`(must contain the `_`) represent a datacell to display data later, and `default_value` will be set if no data passed.
- - **Usuage**:
+- **Usuage**:
+
  ```javascript
  let failMessage = e("model:FailMessage", {
     "div.head": {
@@ -206,8 +214,17 @@ fetch()
     })
     // in this case only _title will be changed!
 })
- ```
+```
 
+- `_ife` function: this function takes a selector and a callback then only execute if selector was found.
+
+```javascript
+
+// this line will remove .selected class if exists inside one of the ul li items!
+_ife("ul>li.selected",(elm)=> elm.class('-selected'));
+
+```
 
 ## Copyrights
+
 Reserved under MIT license
