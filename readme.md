@@ -216,7 +216,7 @@ fetch()
 })
 ```
 
-- `_ife` function: this function takes a selector and a callback then only execute if selector was found.
+- `_ife` function: this function takes selector and callback then only execute callback if selector was found.
 
 ```javascript
 

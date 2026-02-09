@@ -1,10 +1,32 @@
 # Changelog
 
-## [8.1.0] - 2026-02-09
+## [8.4.0] - 2026-02-09
 
 ### Added
 
-- new `_ife` function provided through the library, execute a code on element only if exists costing less code!
+- Introducting `_ife` a function that lazy execute a code on a selector only if it exists!
+
+## [8.3.0] - 2026-01-20
+
+### Changed
+
+- `rAttr` may accept an array of attribute to remove at once
+
+## [8.1.2] - 2026-01-19
+
+### Fixed
+
+- dependency fix!
+
+## [8.1.1] - 2026-01-19
+
+### Fixed
+
+- `attr` `html` `css` `text` return current EyeElement when attribute request is empty on the element, now it does returns null/undefined/""(empty string)
+
+### Changed
+
+- `delegate` method signature has better scope over surrounding entities, calling `this` inside the callback will reference the clicked element HTMLElement, second parameter of the callback is reference to the EyeElement representation of the clicked element while the third of the element parent first initialized with.
 
 ## [8.0.1] - 2025-12-02
 
