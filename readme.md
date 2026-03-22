@@ -62,6 +62,7 @@ baron
 baron
     .data("name","yousef neji"), // more powerfull than dataset, using WeakMaps!
     .data("name"); // deleting a key
+baron.tdata("name","yousef neji"); // uses dataset
 
 baron.attr("contentEditable","true"); // manipulating atributes
 baron.attr("style",false); // `false` will remove the attribute `style`
@@ -76,6 +77,41 @@ baron.child(0); // getting child number 0
 baron.childlen // getting children length
 
 baron.client("width") // get client specific informations "width" "height" "left" or "top"
+```
+
+## domReady and eDelegate
+
+```javascript
+// domReady executes callback once DOM content
+// is fully loaded to replace the line 
+// document.addEventListener("DOMContentLoaded", ()=>{
+// })
+domReady(()=>{
+    // dom document content is fully loaded
+    // I can proceed in my app logic
+    e("..").on ..
+    e("..").on ..
+    e("..").on ..
+    // more logic ...
+
+
+    // eDelegate works similar to
+    // document.addEventListener("click", function(ev){
+    // const target = ev.target.closest("_class")
+    // if(target) {
+    //      do some logic
+    // }
+    // })
+
+    eDelegate("click","tr",(ev, tr)=>{
+        const rowId = tr.tdata('id')
+        fetch("api/table/data/" + rowId)
+            .then(res=>{
+                // do something with res..
+            })
+    })
+})
+
 ```
 
 ## Redefine set/get features of .text and .val

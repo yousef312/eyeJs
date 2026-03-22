@@ -412,7 +412,7 @@ export class EyeElement {
    */
   constructor(selector, attrs, css) {
     let _this = this;
-    if (selector instanceof HTMLElement) {
+    if (selector instanceof HTMLElement || selector instanceof SVGAElement || selector instanceof Document) {
       this.#raw = [selector];
     } else if (htmlElements.includes(selector)) {
       // creating a new element
@@ -505,7 +505,7 @@ export class EyeElement {
 
   /**
    * Raw html element
-   * @type {HTMLElement}
+   * @type {[HTMLElement]}
    */
   get raw() {
     return this.#raw;
@@ -583,6 +583,19 @@ export class EyeElement {
       else return localdata.get(this)[key];
     }
     return this;
+  }
+  /**
+   * Set or get element's dataset values, this function similar to vanillaJS `element.dataset.[key] = [value]`
+   * @param {string} key 
+   * @param {string|any} value 
+   * @returns {EyeElement|string}
+   */
+  tdata(key, value) {
+    if (value === undefined) return this.raw[0].dataset[key]
+    this.each((elm) => {
+      elm.dataset[key] = value
+    })
+    return this
   }
 
   /**
@@ -1061,7 +1074,7 @@ export class EyeElement {
     return this;
   }
   /**
-   * Serialize this element to send it over network, returns 3 formats `json`, `url` & `fd`(formData) 
+   * Serialize form element(or any other element) to send it data over the network
    * @method EyeElement#serialize
    * @param {{inputs: Array<string>}} opts
    * @returns {{json: Object, url: String, fd: FormData}}
@@ -1078,8 +1091,8 @@ export class EyeElement {
     };
     this.#raw[0].querySelectorAll(inputs.join(','))
       .forEach((inp, i) => {
-        let name = inp.name || inp.dataset.name;
-        let value = inp.value || inp.textContent;
+        let name = "name" in inp ? inp.name : inp.dataset.name;
+        let value = "value" in inp ? inp.value : inp.textContent;
         if (typeof opts[name] === "function") value = opts[name](inp);
 
         if (inp.type == "file")
@@ -1214,6 +1227,33 @@ export function _ife(selector, callback) {
     callback.call(elm, elm);
     return true;
   } else return false
+}
+
+/**
+ * Execute callback once DOMContentLoaded event is triggered, similar 
+ * to `document.addEventListener('DOMContentLoaded')`
+ * @param {(ev: Event)=>void} cb 
+ */
+export function domReady(cb) {
+  document.addEventListener('DOMContentLoaded', function (ev) {
+    cb(ev)
+  })
+}
+
+/**
+ * Attach document level delegated event listener, this is usefull to attach callbacks
+ * for dynamic content where elements changes like table content, refreshable cards list... 
+ * @param {string} event 
+ * @param {string} selector 
+ * @param {(ev: Event)=>void} callback 
+ */
+export function eDelegate(event, selector, callback) {
+  document.addEventListener(event, function (ev) {
+    const t = ev.target.closest(selector)
+    if (t) {
+      callback(ev, e(t))
+    }
+  })
 }
 
 // gloablly exposed

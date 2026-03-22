@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.5.0] - 2026-03-22
+
+### Added
+
+- New `domReady` function to attach a callback once DOMContentLoaded event is triggered!
+- New `eDelegate` function to attach document level events listeners!
+- New `tdata` function to Set/Get dataset values of elements
+
+### Fixed
+
+- `e` doesn't works with SVG elements and document object, fixed!
+
 ## [8.4.0] - 2026-02-09
 
 ### Added
