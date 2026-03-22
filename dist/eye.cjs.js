@@ -1028,7 +1028,7 @@ class EyeElement {
     return this;
   }
   /**
-   * Activate/disactive different pointer features such as PointerLock, pointerCapture...
+   * Activate/disactive different pointer features such as PointerLock, pointerCapture..
    * @method EyeElement#pointer
    * @param {"capture" | "lock"} action 
    * @param {boolean} status 
