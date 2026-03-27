@@ -1,5 +1,15 @@
 # Changelog
 
+## [8.5.1] - 2026-03-27
+
+### Added
+
+- Interducing `.debounce` function that only run a timed event once if still not! otherwise it late the call forward!
+
+### Fixed
+
+- `.serialize` function doesn't work fine with file select input, now is fixed!
+
 ## [8.5.0] - 2026-03-22
 
 ### Added

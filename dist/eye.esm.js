@@ -1094,11 +1094,12 @@ class EyeElement {
         let value = "value" in inp ? inp.value : inp.textContent;
         if (typeof opts[name] === "function") value = opts[name](inp);
 
-        if (inp.type == "file")
-          inp.files.forEach(file => {
+        if (inp.type == "file") {
+          for (let i = 0; i < inp.files.length; i++) {
+            const file = inp.files[i];
             out.fd.append(name, file);
-          });
-        else {
+          }
+        } else {
           out.json[name] = value;
           out.fd.append(name, value);
         }
@@ -1211,6 +1212,22 @@ function e(tag, attrs, css) {
     return ne.length === 0 ? null : ne;
   }
 }
+
+/**
+ * Run the callback `func` once if not already run and processing, this function
+ * is usefull for making search inputs!
+ * @param {(event: Event)=>} func 
+ * @param {number} wait 
+ * @returns {()=>}
+ */
+e.debounce = function (func, wait) {
+  let timeout = null;
+  wait = wait || 500;
+  return function (...args) {
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  }
+};
 
 /**
  * Similar to `e` yet more condition based, the callback will only execute
